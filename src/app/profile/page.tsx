@@ -122,8 +122,8 @@ export default function ProfilePage() {
                                                         <div className="text-right">
                                                             <p className="font-bold">₹{order.price.toFixed(2)}</p>
                                                             <span className={`inline-block px-2 py-1 rounded-full text-xs ${order.status === "completed"
-                                                                    ? "bg-green-100 text-green-800"
-                                                                    : "bg-yellow-100 text-yellow-800"
+                                                                ? "bg-green-100 text-green-800"
+                                                                : "bg-yellow-100 text-yellow-800"
                                                                 }`}>
                                                                 {order.status}
                                                             </span>
@@ -135,7 +135,7 @@ export default function ProfilePage() {
                                     </div>
                                 ) : (
                                     <div className="text-center py-8">
-                                        <p className="mb-4">You haven't placed any orders yet.</p>
+                                        <p className="mb-4">You haven&apos;t placed any orders yet.</p>
                                         <Button asChild>
                                             <Link href="/shop">Browse Projects</Link>
                                         </Button>

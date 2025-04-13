@@ -125,7 +125,7 @@ const OrdersPage = () => {
                     <Package className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
                     <h1 className="text-2xl font-bold mb-4">No Orders Found</h1>
                     <p className="text-muted-foreground mb-8">
-                        You haven't placed any orders yet. Explore our projects and make your first purchase!
+                        You haven&apos;t placed any orders yet. Explore our projects and make your first purchase!
                     </p>
                     <Button asChild>
                         <Link href="/shop">Browse Projects</Link>

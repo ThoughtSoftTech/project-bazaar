@@ -24,7 +24,7 @@ const ProjectDetail = () => {
             <div className="container mx-auto px-6 py-16 text-center">
                 <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
                 <p className="text-muted-foreground mb-8">
-                    The project you're looking for doesn't exist or has been removed.
+                    The project you&apos;re looking for doesn&apos;t exist or has been removed.
                 </p>
                 <Button asChild>
                     <Link href="/shop">Browse Projects</Link>
@@ -188,8 +188,8 @@ const ProjectDetail = () => {
                             and scalability.
                         </p>
                         <p>
-                            Whether you're using this for educational purposes, as a starting point for your own
-                            project, or implementing it directly in a production environment, you'll find the
+                            Whether you&apos;re using this for educational purposes, as a starting point for your own
+                            project, or implementing it directly in a production environment, you&apos;ll find the
                             structure and implementation to be clean and professional.
                         </p>
                     </TabsContent>
@@ -208,7 +208,7 @@ const ProjectDetail = () => {
                     <TabsContent value="delivery" className="space-y-4">
                         <h3 className="text-xl font-semibold">Delivery Information</h3>
                         <p>
-                            After completing your purchase, you'll receive immediate access to download the project
+                            After completing your purchase, you&apos;ll receive immediate access to download the project
                             files. The delivery includes:
                         </p>
                         <ul className="list-disc pl-6 space-y-2">

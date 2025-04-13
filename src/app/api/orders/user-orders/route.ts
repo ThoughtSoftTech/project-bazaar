@@ -3,6 +3,12 @@ import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import jwt from 'jsonwebtoken';
 
+// Define a type for the JWT payload
+interface JwtPayload {
+    id: string;
+    [key: string]: any; // Allow for other properties
+}
+
 // Helper function to extract user ID from JWT token
 const getUserIdFromToken = (request: NextRequest) => {
     // Get the token from cookies or authorization header
@@ -16,7 +22,7 @@ const getUserIdFromToken = (request: NextRequest) => {
     try {
         // Verify and decode the token
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret-key');
-        return (decoded as any).id;
+        return (decoded as JwtPayload).id;
     } catch (error) {
         console.error('Error verifying token:', error);
         return null;

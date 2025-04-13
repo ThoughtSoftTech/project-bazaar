@@ -89,4 +89,7 @@ const ProjectCard = memo(({ project, featured = false }: ProjectCardProps) => {
   );
 });
 
+// Add display name to fix ESLint warning
+ProjectCard.displayName = 'ProjectCard';
+
 export default ProjectCard;

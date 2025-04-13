@@ -189,7 +189,7 @@ export default function Home() {
               {
                 name: "Nikhil Kumar",
                 role: "Project Manager",
-                quote: "I used the management dashboard for my team's project tracking. The customization option allowed me to tailor it perfectly to our needs.",
+                quote: "I used the management dashboard for my team&apos;s project tracking. The customization option allowed me to tailor it perfectly to our needs.",
                 rating: 4
               },
               {
@@ -257,11 +257,11 @@ export default function Home() {
               },
               {
                 question: "How do I download my purchased projects?",
-                answer: "After successful payment, you'll receive immediate access to download your purchased projects from your account dashboard."
+                answer: "After successful payment, you&apos;ll receive immediate access to download your purchased projects from your account dashboard."
               },
               {
                 question: "Do you offer refunds?",
-                answer: "We offer refunds within 7 days of purchase if the project doesn't match the description or has significant technical issues that cannot be resolved."
+                answer: "We offer refunds within 7 days of purchase if the project doesn&apos;t match the description or has significant technical issues that cannot be resolved."
               }
             ].map((faq, index) => (
               <div

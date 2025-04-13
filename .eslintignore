@@ -1,0 +1,8 @@
+# Ignore UI components that may have ESLint issues
+src/components/ui/**/*
+# Ignore node_modules
+node_modules
+# Ignore build files
+.next
+# Ignore public assets
+public

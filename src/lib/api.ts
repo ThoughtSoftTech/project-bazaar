@@ -2,8 +2,12 @@
  * Helper function for making API calls
  */
 interface ApiError extends Error {
-  info?: any;
+  info?: Record<string, unknown>;
   status?: number;
+}
+
+interface FetchOptions extends RequestInit {
+  headers?: Record<string, string>;
 }
 
 // Base URL without the /api suffix
@@ -11,14 +15,14 @@ const BASE_URL = process.env.NODE_ENV === 'production'
   ? ''  // In production, we'll use relative URLs
   : 'http://localhost:3000';  // No trailing /api
 
-export async function fetchAPI(endpoint: string, options = {}) {
+export async function fetchAPI(endpoint: string, options: FetchOptions = {}) {
   // Get auth token from localStorage (if it exists and we're in a browser environment)
-  let token = null;
+  let token: string | null = null;
   if (typeof window !== 'undefined') {
     token = localStorage.getItem('token');
   }
 
-  const defaultOptions = {
+  const defaultOptions: FetchOptions = {
     headers: {
       'Content-Type': 'application/json',
       // Add authorization header if token exists
@@ -26,13 +30,13 @@ export async function fetchAPI(endpoint: string, options = {}) {
     },
   };
 
-  const mergedOptions = {
+  const mergedOptions: FetchOptions = {
     ...defaultOptions,
     ...options,
     // Make sure we properly merge headers if options also contains headers
     headers: {
       ...defaultOptions.headers,
-      ...(options as any)?.headers,
+      ...options.headers,
     }
   };
 

@@ -21,7 +21,7 @@ const NotFound = () => {
         404
       </h1>
       <p className="text-xl md:text-2xl font-medium text-muted-foreground mb-8 text-center">
-        Oops! We couldn't find the page you're looking for.
+        Oops! We couldn&apos;t find the page you&apos;re looking for.
       </p>
       <div className="flex flex-col sm:flex-row gap-4">
         <Button size="lg" asChild>

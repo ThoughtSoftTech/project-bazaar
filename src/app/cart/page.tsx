@@ -11,10 +11,51 @@ import { useCart } from '@/contexts/CartContext';
 import { fetchAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Define types for Razorpay integration
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: RazorpayConstructor;
   }
+}
+
+interface RazorpayConstructor {
+  new(options: RazorpayOptions): RazorpayInstance;
+}
+
+interface RazorpayInstance {
+  on(event: string, callback: (response: RazorpayResponse) => void): void;
+  open(): void;
+}
+
+interface RazorpayOptions {
+  key: string | undefined;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  handler: (response: RazorpayResponse) => void;
+  prefill: {
+    name: string;
+    email: string;
+    contact: string;
+  };
+  notes: {
+    address: string;
+  };
+  theme: {
+    color: string;
+  };
+  modal: {
+    ondismiss: () => void;
+  };
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+  [key: string]: string;
 }
 
 const Cart = () => {
@@ -81,14 +122,14 @@ const Cart = () => {
       });
 
       // Initialize Razorpay payment
-      const options = {
+      const options: RazorpayOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: response.amount,
         currency: response.currency,
         name: "Project Marketplace",
         description: "Purchase of digital projects",
         order_id: response.id,
-        handler: async function (paymentResponse: any) {
+        handler: async function (paymentResponse: RazorpayResponse) {
           try {
             // Verify payment on server
             const paymentVerification = await fetchAPI('/api/verify-payment', {
@@ -158,7 +199,7 @@ const Cart = () => {
       };
 
       const paymentObject = new window.Razorpay(options);
-      paymentObject.on('payment.failed', function (response: any) {
+      paymentObject.on('payment.failed', function (response: RazorpayResponse) {
         toast({
           title: "Payment Failed",
           description: response.error.description || "Your payment failed. Please try again.",
