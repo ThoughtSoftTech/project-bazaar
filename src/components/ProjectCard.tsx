@@ -76,7 +76,7 @@ const ProjectCard = memo(({ project, featured = false }: ProjectCardProps) => {
         {/* Action Buttons */}
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="flex-1" asChild>
-            <Link href={`/project/${project.id}`}>
+            <Link href={`/projectdetails/${encodeURIComponent(project.id)}`}>
               <Eye className="h-4 w-4 mr-2" /> Details
             </Link>
           </Button>
