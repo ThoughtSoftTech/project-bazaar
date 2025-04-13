@@ -32,7 +32,7 @@ export default function Home() {
                   <Link href="/shop">Browse Projects <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
-                  <Link href="/">Custom Project</Link>
+                  <Link href="/custom">Custom Project</Link>
                 </Button>
               </div>
               <div className="flex items-center space-x-4 text-muted-foreground">

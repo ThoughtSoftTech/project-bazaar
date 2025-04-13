@@ -14,6 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle
+} from "@/components/ui/navigation-menu";
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
@@ -32,18 +39,25 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          <Link href="/" className="text-foreground hover:text-primary transition-colors">
-            Home
-          </Link>
-          <Link href="/shop" className="text-foreground hover:text-primary transition-colors">
-            Browse Projects
-          </Link>
-          <Link href="/about" className="text-foreground hover:text-primary transition-colors">
-            About
-          </Link>
-          <Link href="/contact" className="text-foreground hover:text-primary transition-colors">
-            Contact
-          </Link>
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <Link href="/" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/shop" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Shop</NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/custom" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Custom Project</NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
 
         <div className="hidden md:flex items-center space-x-4">
@@ -163,6 +177,13 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Browse Projects
+            </Link>
+            <Link
+              href="/custom"
+              className="text-foreground hover:text-primary transition-colors py-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Custom Project
             </Link>
             <Link
               href="/about"
