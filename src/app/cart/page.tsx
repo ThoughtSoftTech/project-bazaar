@@ -55,7 +55,15 @@ interface RazorpayResponse {
   razorpay_payment_id: string;
   razorpay_order_id: string;
   razorpay_signature: string;
-  [key: string]: string;
+  error?: {
+    code: string;
+    description: string;
+    source: string;
+    step: string;
+    reason: string;
+    metadata: Record<string, any>;
+  };
+  [key: string]: any;
 }
 
 const Cart = () => {
@@ -202,7 +210,7 @@ const Cart = () => {
       paymentObject.on('payment.failed', function (response: RazorpayResponse) {
         toast({
           title: "Payment Failed",
-          description: response.error.description || "Your payment failed. Please try again.",
+          description: response.error?.description || "Your payment failed. Please try again.",
           variant: "destructive",
         });
         setIsProcessing(false);
