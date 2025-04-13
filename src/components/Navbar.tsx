@@ -26,7 +26,7 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-2">
           <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Make My Project
+            Project Bazaar
           </span>
         </Link>
 

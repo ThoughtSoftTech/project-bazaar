@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Make My Project
+              Project Bazaar
             </h3>
             <p className="text-muted-foreground mb-4">
               Your marketplace for high-quality academic and professional projects.
@@ -102,7 +102,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Make My Project. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Project Bazaar. All rights reserved.</p>
         </div>
       </div>
     </footer>
