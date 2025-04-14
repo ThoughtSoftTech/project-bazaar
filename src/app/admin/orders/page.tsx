@@ -68,6 +68,9 @@ export default function AdminOrders() {
     const [filterStatus, setFilterStatus] = useState<string | null>(null);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [showOrderDetails, setShowOrderDetails] = useState(false);
+    // Add state for tracking admin actions
+    const [adminActions, setAdminActions] = useState<{ [key: string]: boolean }>({});
+    const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -87,6 +90,9 @@ export default function AdminOrders() {
 
                     // Fetch customer details for all orders
                     await fetchCustomerDetails(fetchedOrders);
+
+                    // Fetch admin action status for these orders
+                    await fetchAdminActions(fetchedOrders);
                 } catch (error) {
                     console.error('Error fetching orders:', error);
                     // Use sample data for development
@@ -99,6 +105,80 @@ export default function AdminOrders() {
 
         fetchOrders();
     }, [user, token]);
+
+    // New function to fetch admin actions for orders
+    const fetchAdminActions = async (orders: Order[]) => {
+        try {
+            // Get all order IDs
+            const orderIds = orders.map(order => order._id);
+
+            // Fetch admin actions for these orders
+            const actionsResponse = await fetchAPI(`/api/admin/actions?type=order&ids=${orderIds.join(',')}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (actionsResponse && actionsResponse.actions) {
+                // Create a mapping of order ID to completion status
+                const actionMap = actionsResponse.actions.reduce((acc: { [key: string]: boolean }, action: any) => {
+                    acc[action.itemId] = action.isCompleted;
+                    return acc;
+                }, {});
+
+                setAdminActions(actionMap);
+            }
+        } catch (error) {
+            console.error('Error fetching admin actions:', error);
+        }
+    };
+
+    // New function to toggle order completion
+    const toggleOrderCompletion = async (orderId: string, currentStatus: boolean) => {
+        if (!user?.isAdmin) return;
+
+        // Set loading state for this specific order
+        setActionLoading(prev => ({ ...prev, [orderId]: true }));
+
+        try {
+            // Call our new API endpoint to update the admin action
+            const response = await fetchAPI(`/api/admin/orders/${orderId}/action`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: user._id,
+                    isCompleted: !currentStatus
+                })
+            });
+
+            if (response && response.action) {
+                // Update the admin actions state
+                setAdminActions(prev => ({
+                    ...prev,
+                    [orderId]: response.action.isCompleted
+                }));
+
+                // If marking as completed, also update the order status
+                if (response.action.isCompleted) {
+                    setOrders(orders.map(order =>
+                        order._id === orderId
+                            ? { ...order, status: 'completed' }
+                            : order
+                    ));
+                }
+
+                console.log(`Order ${orderId} action updated successfully`);
+            }
+        } catch (error) {
+            console.error('Error updating order action:', error);
+        } finally {
+            // Clear loading state
+            setActionLoading(prev => ({ ...prev, [orderId]: false }));
+        }
+    };
 
     const fetchCustomerDetails = async (orders: Order[]) => {
         // Extract unique user IDs
@@ -498,21 +578,34 @@ export default function AdminOrders() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    {order.status !== 'completed' ? (
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => handleMarkAsCompleted(order._id)}
-                                                            className="h-8 px-2"
-                                                        >
-                                                            <CheckCircle className="h-4 w-4 mr-1" />
-                                                            Complete
-                                                        </Button>
-                                                    ) : (
-                                                        <Badge variant="outline" className="bg-green-50 text-green-600">
-                                                            <Check className="h-3 w-3 mr-1" /> Completed
-                                                        </Badge>
-                                                    )}
+                                                    {/* Admin action buttons - toggle completion status */}
+                                                    <Button
+                                                        size="sm"
+                                                        variant={adminActions[order._id] ? "outline" : "default"}
+                                                        onClick={() => toggleOrderCompletion(order._id, !!adminActions[order._id])}
+                                                        className="h-8 px-2"
+                                                        disabled={actionLoading[order._id]}
+                                                    >
+                                                        {actionLoading[order._id] ? (
+                                                            <span className="flex items-center">
+                                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                </svg>
+                                                                Processing
+                                                            </span>
+                                                        ) : adminActions[order._id] ? (
+                                                            <span className="flex items-center">
+                                                                <Check className="h-4 w-4 mr-1" />
+                                                                Completed
+                                                            </span>
+                                                        ) : (
+                                                            <span className="flex items-center">
+                                                                <CheckCircle className="h-4 w-4 mr-1" />
+                                                                Mark Complete
+                                                            </span>
+                                                        )}
+                                                    </Button>
 
                                                     <Button
                                                         size="icon"
@@ -631,17 +724,34 @@ export default function AdminOrders() {
                                 >
                                     Close
                                 </Button>
-                                {selectedOrder.status !== 'completed' && (
-                                    <Button
-                                        onClick={() => {
-                                            handleMarkAsCompleted(selectedOrder._id);
-                                            setShowOrderDetails(false);
-                                        }}
-                                    >
-                                        <CheckCircle className="h-4 w-4 mr-2" />
-                                        Mark as Completed
-                                    </Button>
-                                )}
+                                <Button
+                                    variant={adminActions[selectedOrder._id] ? "outline" : "default"}
+                                    onClick={() => {
+                                        toggleOrderCompletion(selectedOrder._id, !!adminActions[selectedOrder._id]);
+                                        setShowOrderDetails(false);
+                                    }}
+                                    disabled={actionLoading[selectedOrder._id]}
+                                >
+                                    {actionLoading[selectedOrder._id] ? (
+                                        <span className="flex items-center">
+                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Processing
+                                        </span>
+                                    ) : adminActions[selectedOrder._id] ? (
+                                        <span className="flex items-center">
+                                            <Check className="h-4 w-4 mr-2" />
+                                            Mark as Incomplete
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center">
+                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                            Mark as Complete
+                                        </span>
+                                    )}
+                                </Button>
                             </div>
                         </div>
                     </DialogContent>

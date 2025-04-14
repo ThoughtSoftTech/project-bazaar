@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import {
     Card, CardContent, CardDescription, CardHeader, CardTitle,
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+    Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,27 +12,27 @@ import {
     DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import {
-    Check, CheckCircle, ChevronDown, Clock, Eye,
+    Check, CheckCircle, ChevronDown, Eye,
     Filter, FileText, Search, SortAsc, SortDesc
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchAPI } from '@/lib/api';
-import Link from 'next/link';
 
+// Custom Request interface
 interface CustomRequest {
     _id: string;
-    requestId: string;
-    userId: string;
-    userName: string;
-    userEmail: string;
+    name: string;
+    email: string;
+    phone?: string;
     projectType: string;
+    projectCategory: string;
     description: string;
-    budget: number;
-    timeline: string;
-    status: 'pending' | 'approved' | 'in-progress' | 'completed' | 'rejected';
+    budget?: number;
+    timeline?: string;
+    requirements?: string;
+    status: 'pending' | 'reviewing' | 'accepted' | 'rejected' | 'completed';
     createdAt: string;
-    updatedAt: string;
 }
 
 export default function AdminCustomRequests() {
@@ -42,109 +43,166 @@ export default function AdminCustomRequests() {
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<string | null>(null);
+    const [selectedRequest, setSelectedRequest] = useState<CustomRequest | null>(null);
+    const [showRequestDetails, setShowRequestDetails] = useState(false);
+    // Admin action states
+    const [adminActions, setAdminActions] = useState<{ [key: string]: boolean }>({});
+    const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
-        const fetchRequests = async () => {
+        const fetchCustomRequests = async () => {
             if (user?.isAdmin) {
                 try {
                     setIsLoading(true);
-                    // In a real app, this would fetch from your backend
-                    const requestData = await fetchAPI('/api/admin/custom-requests', {
+                    // Fetch custom requests from MongoDB
+                    const requestsData = await fetchAPI('/api/admin/custom-requests', {
                         headers: {
                             Authorization: `Bearer ${token}`
                         }
                     });
 
                     // If API call fails, use sample data for development
-                    setRequests(requestData || getSampleRequests());
+                    const fetchedRequests = requestsData || getSampleCustomRequests();
+                    setRequests(fetchedRequests);
+
+                    // Fetch admin action status for these requests
+                    await fetchAdminActions(fetchedRequests);
                 } catch (error) {
                     console.error('Error fetching custom requests:', error);
                     // Use sample data for development
-                    setRequests(getSampleRequests());
+                    setRequests(getSampleCustomRequests());
                 } finally {
                     setIsLoading(false);
                 }
             }
         };
 
-        fetchRequests();
+        fetchCustomRequests();
     }, [user, token]);
 
-    const getSampleRequests = (): CustomRequest[] => {
+    // Function to fetch admin actions for custom requests
+    const fetchAdminActions = async (requests: CustomRequest[]) => {
+        try {
+            // Get all request IDs
+            const requestIds = requests.map(request => request._id);
+
+            // Fetch admin actions for these requests
+            const actionsResponse = await fetchAPI(`/api/admin/actions?type=custom&ids=${requestIds.join(',')}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (actionsResponse && actionsResponse.actions) {
+                // Create a mapping of request ID to completion status
+                const actionMap = actionsResponse.actions.reduce((acc: { [key: string]: boolean }, action: any) => {
+                    acc[action.itemId] = action.isCompleted;
+                    return acc;
+                }, {});
+
+                setAdminActions(actionMap);
+            }
+        } catch (error) {
+            console.error('Error fetching admin actions:', error);
+        }
+    };
+
+    // Function to toggle custom request completion
+    const toggleRequestCompletion = async (requestId: string, currentStatus: boolean) => {
+        if (!user?.isAdmin) return;
+
+        // Set loading state for this specific request
+        setActionLoading(prev => ({ ...prev, [requestId]: true }));
+
+        try {
+            // Call our API endpoint to update the admin action
+            const response = await fetchAPI(`/api/admin/custom/${requestId}/action`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    isCompleted: !currentStatus
+                })
+            });
+
+            if (response && response.action) {
+                // Update the admin actions state
+                setAdminActions(prev => ({
+                    ...prev,
+                    [requestId]: response.action.isCompleted
+                }));
+
+                // If the status changed, update the request status in UI
+                const newStatus = response.action.isCompleted ? 'completed' : 'pending';
+                setRequests(requests.map(request =>
+                    request._id === requestId
+                        ? { ...request, status: newStatus }
+                        : request
+                ));
+
+                console.log(`Custom request ${requestId} action updated successfully`);
+            }
+        } catch (error) {
+            console.error('Error updating custom request action:', error);
+        } finally {
+            // Clear loading state
+            setActionLoading(prev => ({ ...prev, [requestId]: false }));
+        }
+    };
+
+    // Sample data for development
+    const getSampleCustomRequests = (): CustomRequest[] => {
         return [
             {
                 _id: '1',
-                requestId: 'REQ-1034',
-                userId: 'user1',
-                userName: 'Sarah Chen',
-                userEmail: 'sarah@example.com',
-                projectType: 'Mobile App Development',
-                description: 'I need a mobile app for my small business that allows customers to book appointments and view our services.',
-                budget: 30000,
-                timeline: '2-3 months',
+                name: 'John Smith',
+                email: 'john.smith@example.com',
+                phone: '+91 9876543210',
+                projectType: 'Mobile App',
+                projectCategory: 'E-commerce',
+                description: 'I need a mobile app for my online store with integrated payment system and inventory management.',
+                budget: 75000,
+                timeline: '3 months',
+                requirements: 'Must work on both iOS and Android, include user authentication, and product search functionality.',
                 status: 'pending',
-                createdAt: '2023-04-10T10:30:00Z',
-                updatedAt: '2023-04-10T10:30:00Z'
+                createdAt: '2025-04-10T09:15:00Z'
             },
             {
                 _id: '2',
-                requestId: 'REQ-1033',
-                userId: 'user2',
-                userName: 'John Doe',
-                userEmail: 'john@example.com',
-                projectType: 'Custom Web Portal',
-                description: 'Looking for a custom web portal for employee management and task tracking system.',
-                budget: 45000,
-                timeline: '3-4 months',
-                status: 'in-progress',
-                createdAt: '2023-04-05T09:15:00Z',
-                updatedAt: '2023-04-08T14:20:00Z'
+                name: 'Sarah Johnson',
+                email: 'sarah.j@example.com',
+                phone: '+91 8765432109',
+                projectType: 'Web Application',
+                projectCategory: 'Education',
+                description: 'I want to create an online learning platform for my tutoring business.',
+                budget: 120000,
+                timeline: '4 months',
+                requirements: 'Video streaming capabilities, quiz system, and student progress tracking.',
+                status: 'reviewing',
+                createdAt: '2025-04-08T14:30:00Z'
             },
             {
                 _id: '3',
-                requestId: 'REQ-1032',
-                userId: 'user3',
-                userName: 'Michael Brown',
-                userEmail: 'michael@example.com',
-                projectType: 'IoT Home Automation',
-                description: 'Need a custom IoT solution to automate home devices including lights, thermostat, and security.',
-                budget: 60000,
-                timeline: '4-5 months',
+                name: 'Raj Patel',
+                email: 'raj.patel@example.com',
+                phone: '+91 7654321098',
+                projectType: 'Hardware Project',
+                projectCategory: 'IoT',
+                description: 'I need an IoT solution for smart irrigation system for my farm.',
+                budget: 85000,
+                timeline: '2 months',
+                requirements: 'Must include soil moisture sensors, weather forecasting integration, and mobile app control.',
                 status: 'completed',
-                createdAt: '2023-04-02T16:45:00Z',
-                updatedAt: '2023-04-15T11:30:00Z'
-            },
+                createdAt: '2025-04-05T10:45:00Z'
+            }
         ];
     };
 
-    const handleMarkAsCompleted = async (requestId: string) => {
-        if (user?.isAdmin) {
-            try {
-                // In a real app, this would update your backend
-                await fetchAPI(`/api/admin/custom-requests/${requestId}/complete`, {
-                    method: 'PUT',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                // Update local state
-                setRequests(requests.map(request =>
-                    request._id === requestId
-                        ? { ...request, status: 'completed', updatedAt: new Date().toISOString() }
-                        : request
-                ));
-            } catch (error) {
-                console.error('Error updating request status:', error);
-                // For development, update the UI anyway
-                setRequests(requests.map(request =>
-                    request._id === requestId
-                        ? { ...request, status: 'completed', updatedAt: new Date().toISOString() }
-                        : request
-                ));
-            }
-        }
+    const handleViewRequestDetails = (request: CustomRequest) => {
+        setSelectedRequest(request);
+        setShowRequestDetails(true);
     };
 
     const handleSort = (field: keyof CustomRequest) => {
@@ -156,6 +214,42 @@ export default function AdminCustomRequests() {
         }
     };
 
+    // Format date to readable string
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    // Format currency
+    const formatCurrency = (amount?: number) => {
+        if (!amount) return 'Not specified';
+        return `₹${amount.toLocaleString()}`;
+    };
+
+    // Get status badge
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case 'pending':
+                return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
+            case 'reviewing':
+                return <Badge variant="outline" className="bg-blue-100 text-blue-800">Reviewing</Badge>;
+            case 'accepted':
+                return <Badge variant="outline" className="bg-green-100 text-green-800">Accepted</Badge>;
+            case 'rejected':
+                return <Badge variant="outline" className="bg-red-100 text-red-800">Rejected</Badge>;
+            case 'completed':
+                return <Badge variant="outline" className="bg-purple-100 text-purple-800">Completed</Badge>;
+            default:
+                return <Badge variant="outline">{status}</Badge>;
+        }
+    };
+
     // Sort and filter requests
     const filteredRequests = requests
         .filter(request => {
@@ -163,10 +257,11 @@ export default function AdminCustomRequests() {
             if (searchTerm) {
                 const searchLower = searchTerm.toLowerCase();
                 return (
-                    request.requestId.toLowerCase().includes(searchLower) ||
-                    request.userName.toLowerCase().includes(searchLower) ||
-                    request.userEmail.toLowerCase().includes(searchLower) ||
-                    request.projectType.toLowerCase().includes(searchLower)
+                    request.name.toLowerCase().includes(searchLower) ||
+                    request.email.toLowerCase().includes(searchLower) ||
+                    request.projectType.toLowerCase().includes(searchLower) ||
+                    request.projectCategory.toLowerCase().includes(searchLower) ||
+                    request.description.toLowerCase().includes(searchLower)
                 );
             }
             return true;
@@ -197,36 +292,6 @@ export default function AdminCustomRequests() {
 
             return 0;
         });
-
-    // Format date to readable string
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    // Get status badge
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'pending':
-                return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-            case 'approved':
-                return <Badge variant="outline" className="bg-blue-100 text-blue-800">Approved</Badge>;
-            case 'in-progress':
-                return <Badge variant="outline" className="bg-indigo-100 text-indigo-800">In Progress</Badge>;
-            case 'completed':
-                return <Badge variant="outline" className="bg-green-100 text-green-800">Completed</Badge>;
-            case 'rejected':
-                return <Badge variant="outline" className="bg-red-100 text-red-800">Rejected</Badge>;
-            default:
-                return <Badge variant="outline">{status}</Badge>;
-        }
-    };
 
     // If loading
     if (isLoading) {
@@ -269,17 +334,17 @@ export default function AdminCustomRequests() {
                             <DropdownMenuItem onClick={() => setFilterStatus('pending')}>
                                 Pending
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setFilterStatus('approved')}>
-                                Approved
+                            <DropdownMenuItem onClick={() => setFilterStatus('reviewing')}>
+                                Reviewing
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setFilterStatus('in-progress')}>
-                                In Progress
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setFilterStatus('completed')}>
-                                Completed
+                            <DropdownMenuItem onClick={() => setFilterStatus('accepted')}>
+                                Accepted
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setFilterStatus('rejected')}>
                                 Rejected
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setFilterStatus('completed')}>
+                                Completed
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -288,9 +353,9 @@ export default function AdminCustomRequests() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>All Custom Project Requests</CardTitle>
+                    <CardTitle>All Custom Requests</CardTitle>
                     <CardDescription>
-                        Manage and track all custom project requests from customers.
+                        Manage and track all custom project requests from clients.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -300,28 +365,27 @@ export default function AdminCustomRequests() {
                                 <TableRow>
                                     <TableHead
                                         className="cursor-pointer"
-                                        onClick={() => handleSort('requestId')}
+                                        onClick={() => handleSort('name')}
                                     >
                                         <div className="flex items-center">
-                                            Request ID
-                                            {sortField === 'requestId' && (
+                                            Client
+                                            {sortField === 'name' && (
                                                 sortDirection === 'asc' ? <SortAsc className="ml-1 h-4 w-4" /> : <SortDesc className="ml-1 h-4 w-4" />
                                             )}
                                         </div>
                                     </TableHead>
-                                    <TableHead>Customer</TableHead>
-                                    <TableHead>Project Type</TableHead>
                                     <TableHead
                                         className="cursor-pointer"
-                                        onClick={() => handleSort('budget')}
+                                        onClick={() => handleSort('projectType')}
                                     >
                                         <div className="flex items-center">
-                                            Budget
-                                            {sortField === 'budget' && (
+                                            Project Type
+                                            {sortField === 'projectType' && (
                                                 sortDirection === 'asc' ? <SortAsc className="ml-1 h-4 w-4" /> : <SortDesc className="ml-1 h-4 w-4" />
                                             )}
                                         </div>
                                     </TableHead>
+                                    <TableHead>Budget</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead
                                         className="cursor-pointer"
@@ -340,24 +404,22 @@ export default function AdminCustomRequests() {
                             <TableBody>
                                 {filteredRequests.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                                        <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                                             No custom requests found
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     filteredRequests.map((request) => (
                                         <TableRow key={request._id}>
-                                            <TableCell className="font-medium">
-                                                {request.requestId}
+                                            <TableCell>
+                                                <div className="font-medium">{request.name}</div>
+                                                <div className="text-sm text-muted-foreground">{request.email}</div>
                                             </TableCell>
                                             <TableCell>
-                                                <div className="font-medium">{request.userName}</div>
-                                                <div className="text-sm text-muted-foreground">{request.userEmail}</div>
+                                                <div className="font-medium">{request.projectType}</div>
+                                                <div className="text-sm text-muted-foreground">{request.projectCategory}</div>
                                             </TableCell>
-                                            <TableCell>
-                                                {request.projectType}
-                                            </TableCell>
-                                            <TableCell>₹{request.budget.toLocaleString()}</TableCell>
+                                            <TableCell>{formatCurrency(request.budget)}</TableCell>
                                             <TableCell>
                                                 {getStatusBadge(request.status)}
                                             </TableCell>
@@ -366,23 +428,41 @@ export default function AdminCustomRequests() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    {request.status !== 'completed' ? (
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => handleMarkAsCompleted(request._id)}
-                                                            className="h-8 px-2"
-                                                        >
-                                                            <CheckCircle className="h-4 w-4 mr-1" />
-                                                            Mark Completed
-                                                        </Button>
-                                                    ) : (
-                                                        <Badge variant="outline" className="bg-green-50 text-green-600">
-                                                            <Check className="h-3 w-3 mr-1" /> Completed
-                                                        </Badge>
-                                                    )}
+                                                    {/* Admin action buttons - toggle completion status */}
+                                                    <Button
+                                                        size="sm"
+                                                        variant={adminActions[request._id] ? "outline" : "default"}
+                                                        onClick={() => toggleRequestCompletion(request._id, !!adminActions[request._id])}
+                                                        className="h-8 px-2"
+                                                        disabled={actionLoading[request._id]}
+                                                    >
+                                                        {actionLoading[request._id] ? (
+                                                            <span className="flex items-center">
+                                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                </svg>
+                                                                Processing
+                                                            </span>
+                                                        ) : adminActions[request._id] ? (
+                                                            <span className="flex items-center">
+                                                                <Check className="h-4 w-4 mr-1" />
+                                                                Completed
+                                                            </span>
+                                                        ) : (
+                                                            <span className="flex items-center">
+                                                                <CheckCircle className="h-4 w-4 mr-1" />
+                                                                Mark Complete
+                                                            </span>
+                                                        )}
+                                                    </Button>
 
-                                                    <Button size="icon" variant="ghost" className="h-8 w-8">
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-8 w-8"
+                                                        onClick={() => handleViewRequestDetails(request)}
+                                                    >
                                                         <Eye className="h-4 w-4" />
                                                     </Button>
                                                 </div>
@@ -395,6 +475,110 @@ export default function AdminCustomRequests() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Request Details Dialog */}
+            {selectedRequest && (
+                <Dialog open={showRequestDetails} onOpenChange={setShowRequestDetails}>
+                    <DialogContent className="sm:max-w-[600px]">
+                        <DialogHeader>
+                            <DialogTitle>Custom Project Request Details</DialogTitle>
+                            <DialogDescription>
+                                {selectedRequest.projectType} • {selectedRequest.projectCategory}
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-4 mt-4">
+                            {/* Client information */}
+                            <div className="bg-slate-50 p-4 rounded-md">
+                                <h3 className="font-medium">Client Information</h3>
+                                <div className="mt-2 space-y-1">
+                                    <p><span className="font-medium">Name:</span> {selectedRequest.name}</p>
+                                    <p><span className="font-medium">Email:</span> {selectedRequest.email}</p>
+                                    {selectedRequest.phone && (
+                                        <p><span className="font-medium">Phone:</span> {selectedRequest.phone}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Project details */}
+                            <div className="space-y-3">
+                                <div>
+                                    <h3 className="font-medium">Project Description</h3>
+                                    <p className="mt-1 text-sm">{selectedRequest.description}</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h4 className="text-sm font-medium">Budget</h4>
+                                        <p>{formatCurrency(selectedRequest.budget)}</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-medium">Timeline</h4>
+                                        <p>{selectedRequest.timeline || 'Not specified'}</p>
+                                    </div>
+                                </div>
+
+                                {selectedRequest.requirements && (
+                                    <div>
+                                        <h3 className="font-medium">Requirements</h3>
+                                        <p className="mt-1 text-sm">{selectedRequest.requirements}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Request summary */}
+                            <div className="border-t pt-4 mt-4">
+                                <div className="flex justify-between mt-2">
+                                    <span className="font-medium">Status:</span>
+                                    <span>{getStatusBadge(selectedRequest.status)}</span>
+                                </div>
+                                <div className="flex justify-between mt-2">
+                                    <span className="font-medium">Date Submitted:</span>
+                                    <span>{formatDate(selectedRequest.createdAt)}</span>
+                                </div>
+                            </div>
+
+                            {/* Action buttons */}
+                            <div className="flex justify-end gap-3 mt-6">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowRequestDetails(false)}
+                                >
+                                    Close
+                                </Button>
+                                <Button
+                                    variant={adminActions[selectedRequest._id] ? "outline" : "default"}
+                                    onClick={() => {
+                                        toggleRequestCompletion(selectedRequest._id, !!adminActions[selectedRequest._id]);
+                                        setShowRequestDetails(false);
+                                    }}
+                                    disabled={actionLoading[selectedRequest._id]}
+                                >
+                                    {actionLoading[selectedRequest._id] ? (
+                                        <span className="flex items-center">
+                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Processing
+                                        </span>
+                                    ) : adminActions[selectedRequest._id] ? (
+                                        <span className="flex items-center">
+                                            <Check className="h-4 w-4 mr-2" />
+                                            Mark as Incomplete
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center">
+                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                            Mark as Complete
+                                        </span>
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     );
 }
