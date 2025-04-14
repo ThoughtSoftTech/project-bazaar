@@ -10,11 +10,17 @@ export default function ProjectDetails() {
   // Redirect to shop page after a short delay
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.push('/shop');
+      try {
+        router.push('/shop');
+      } catch (error) {
+        console.error("Navigation error:", error);
+        // Fallback to window.location if router fails
+        window.location.href = '/shop';
+      }
     }, 2000);
 
     return () => clearTimeout(timeout);
-  }, [router]);
+  }, []);  // Remove router from dependency array
 
   return (
     <div className="container mx-auto px-6 py-16 text-center">
