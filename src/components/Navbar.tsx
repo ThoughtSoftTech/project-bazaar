@@ -184,20 +184,6 @@ const Navbar = () => {
             >
               Custom Project
             </Link>
-            <Link
-              href="/about"
-              className="text-foreground hover:text-primary transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              About
-            </Link>
-            <Link
-              href="/contact"
-              className="text-foreground hover:text-primary transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Contact
-            </Link>
 
             {/* Conditional rendering for mobile menu */}
             {isAuthenticated ? (

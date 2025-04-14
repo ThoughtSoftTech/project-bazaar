@@ -9,7 +9,7 @@ const NotFound = () => {
   const pathname = usePathname();
 
   useEffect(() => {
-    console.error(
+    console.info(
       "404 Error: User attempted to access non-existent route:",
       pathname
     );
@@ -25,13 +25,17 @@ const NotFound = () => {
       </p>
       <div className="flex flex-col sm:flex-row gap-4">
         <Button size="lg" asChild>
-          <Link href="/" legacyBehavior>
-            <Home className="h-5 w-5 mr-2" /> Go to Homepage
+          <Link href="/">
+            <span className="flex items-center">
+              <Home className="h-5 w-5 mr-2" /> Go to Homepage
+            </span>
           </Link>
         </Button>
         <Button variant="outline" size="lg" asChild>
-          <Link href="/shop" legacyBehavior>
-            <Search className="h-5 w-5 mr-2" /> Browse Projects
+          <Link href="/shop">
+            <span className="flex items-center">
+              <Search className="h-5 w-5 mr-2" /> Browse Projects
+            </span>
           </Link>
         </Button>
       </div>
