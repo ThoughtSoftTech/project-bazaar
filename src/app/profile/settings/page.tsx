@@ -108,20 +108,18 @@ export default function ProfileSettingsPage() {
         <div className="container mx-auto px-4 py-8 max-w-3xl fade-in">
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" asChild className="mr-4">
-                    <Link href="/profile">
+                    <Link href="/profile" legacyBehavior>
                         <ChevronLeft className="h-4 w-4 mr-1" /> Back to Profile
                     </Link>
                 </Button>
                 <h1 className="text-2xl font-bold">Account Settings</h1>
             </div>
-
             {message.text && (
                 <div className={`p-4 mb-6 rounded-md ${message.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
                     }`}>
                     {message.text}
                 </div>
             )}
-
             <div className="space-y-8">
                 <Card>
                     <CardHeader>

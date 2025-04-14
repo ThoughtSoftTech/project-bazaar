@@ -38,7 +38,10 @@ const CartItem = ({ item }: CartItemProps) => {
         
         <div className="flex-1 space-y-3">
           <div className="flex justify-between">
-            <Link href={`/project/${item.id}`} className="font-semibold hover:text-primary transition-colors">
+            <Link
+              href={`/project/${item.id}`}
+              className="font-semibold hover:text-primary transition-colors"
+              legacyBehavior>
               {item.title}
             </Link>
             <Button 

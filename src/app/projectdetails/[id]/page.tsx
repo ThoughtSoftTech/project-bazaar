@@ -51,10 +51,14 @@ const ProjectDetail = () => {
 
     return (
         <div className="container mx-auto px-6 py-8">
-            <Link href="/shop" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">
-                <ArrowLeft className="h-4 w-4 mr-1" /> Back to Projects
+            <Link
+                href="/shop"
+                className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6"
+            >
+                <span className="flex items-center">
+                    <ArrowLeft className="h-4 w-4 mr-1" /> Back to Projects
+                </span>
             </Link>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
                 {/* Project Image */}
                 <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-6 rounded-lg fade-in">
@@ -170,7 +174,6 @@ const ProjectDetail = () => {
                     </div>
                 </div>
             </div>
-
             {/* Tabs for Additional Information */}
             <div className="mb-16 fade-in">
                 <Tabs defaultValue="details">
@@ -221,7 +224,6 @@ const ProjectDetail = () => {
                     </TabsContent>
                 </Tabs>
             </div>
-
             {/* Related Projects */}
             {relatedProjects.length > 0 && (
                 <div className="fade-in">

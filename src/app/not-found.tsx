@@ -25,12 +25,12 @@ const NotFound = () => {
       </p>
       <div className="flex flex-col sm:flex-row gap-4">
         <Button size="lg" asChild>
-          <Link href="/">
+          <Link href="/" legacyBehavior>
             <Home className="h-5 w-5 mr-2" /> Go to Homepage
           </Link>
         </Button>
         <Button variant="outline" size="lg" asChild>
-          <Link href="/shop">
+          <Link href="/shop" legacyBehavior>
             <Search className="h-5 w-5 mr-2" /> Browse Projects
           </Link>
         </Button>

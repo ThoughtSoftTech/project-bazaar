@@ -248,10 +248,12 @@ const Cart = () => {
   return (
     <div className="container mx-auto px-6 py-8">
       <h1 className="text-3xl font-bold mb-4">Shopping Cart</h1>
-      <Link href="/shop" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8">
+      <Link
+        href="/shop"
+        className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8"
+        legacyBehavior>
         <ArrowLeft className="h-4 w-4 mr-1" /> Continue Shopping
       </Link>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2">

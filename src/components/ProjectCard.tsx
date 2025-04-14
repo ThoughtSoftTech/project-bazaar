@@ -1,7 +1,7 @@
 "use client";
 import React, { memo, useCallback } from 'react';
 import Link from 'next/link';
-import { Star, ShoppingCart, Eye } from 'lucide-react';
+import { Star, ShoppingCart, Eye, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
@@ -44,7 +44,6 @@ const ProjectCard = memo(({ project, featured = false }: ProjectCardProps) => {
           <Badge className="absolute top-2 right-2 bg-primary">Featured</Badge>
         )}
       </div>
-
       {/* Content Section */}
       <div className="p-4">
         {/* Title and Subcategory */}
@@ -76,8 +75,10 @@ const ProjectCard = memo(({ project, featured = false }: ProjectCardProps) => {
         {/* Action Buttons */}
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" className="flex-1" asChild>
-            <Link href={`/projectdetails/${encodeURIComponent(project.id)}`}>
-              <Eye className="h-4 w-4 mr-2" /> Details
+            <Link href={`/projectdetails/${project.id}`}>
+              <span className="flex items-center">
+                View Details <ArrowRight className="ml-2 h-4 w-4"/>
+              </span>
             </Link>
           </Button>
           <Button size="sm" className="flex-1" onClick={handleAddToCart}>

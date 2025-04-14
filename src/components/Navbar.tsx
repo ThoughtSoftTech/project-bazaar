@@ -42,19 +42,19 @@ const Navbar = () => {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
-                </Link>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                  <Link href="/">Home</Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/shop" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Shop</NavigationMenuLink>
-                </Link>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                  <Link href="/shop">Shop</Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/custom" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Custom Project</NavigationMenuLink>
-                </Link>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                  <Link href="/custom">Custom Project</Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
@@ -113,13 +113,13 @@ const Navbar = () => {
             </DropdownMenu>
           ) : (
             <div className="flex items-center space-x-2">
-              <Link href="/login">
+              <Link href="/login" >
                 <Button variant="outline" size="sm">
                   Login
                 </Button>
               </Link>
 
-              <Link href="/signup">
+              <Link href="/signup" >
                 <Button size="sm">Sign Up</Button>
               </Link>
             </div>
@@ -138,7 +138,7 @@ const Navbar = () => {
             {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>
 
-          <Link href="/cart" className="relative">
+          <Link href="/cart" className="relative" >
             <Button variant="ghost" size="icon" className="rounded-full">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
@@ -159,7 +159,6 @@ const Navbar = () => {
           </Button>
         </div>
       </div>
-
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-background border-b p-4 slide-in">
@@ -230,10 +229,18 @@ const Navbar = () => {
               </>
             ) : (
               <div className="flex space-x-2 pt-2">
-                <Link href="/login" className="w-1/2" onClick={() => setIsMenuOpen(false)}>
+                <Link
+                  href="/login"
+                  className="w-1/2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   <Button variant="outline" className="w-full">Login</Button>
                 </Link>
-                <Link href="/signup" className="w-1/2" onClick={() => setIsMenuOpen(false)}>
+                <Link
+                  href="/signup"
+                  className="w-1/2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   <Button className="w-full">Sign Up</Button>
                 </Link>
               </div>

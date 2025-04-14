@@ -12,7 +12,6 @@ export default function Home() {
 
   return (
     <div>
-
       {/* Hero Section */}
       <section className="py-10 md:py-24 sm:px-6">
         <div className="container mx-auto">
@@ -64,7 +63,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Categories Section */}
       <section className="py-16 bg-secondary/30">
         <div className="container mx-auto px-6">
@@ -89,8 +87,10 @@ export default function Home() {
                         href={`/shop?category=${encodeURIComponent(category.name)}&subcategory=${encodeURIComponent(subcategory)}`}
                         className="text-muted-foreground hover:text-primary transition-colors flex items-center"
                       >
-                        <ArrowRight className="h-4 w-4 mr-2" />
-                        {subcategory}
+                        <span className="flex items-center">
+                          <ArrowRight className="h-4 w-4 mr-2" />
+                          {subcategory}
+                        </span>
                       </Link>
                     </li>
                   ))}
@@ -109,7 +109,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Featured Projects */}
       <section className="py-16">
         <div className="container mx-auto px-6">
@@ -126,7 +125,6 @@ export default function Home() {
           <ProjectGrid projects={featuredProjects} featured={true} />
         </div>
       </section>
-
       {/* How It Works */}
       <section className="py-16 bg-secondary/30">
         <div className="container mx-auto px-6">
@@ -167,7 +165,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Testimonials */}
       <section className="py-16">
         <div className="container mx-auto px-6">
@@ -221,7 +218,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="py-16 bg-primary/10 rounded-lg mx-6 my-8">
         <div className="container mx-auto px-6 text-center">
@@ -230,11 +226,14 @@ export default function Home() {
             Browse our collection of projects and find the perfect one for your needs today.
           </p>
           <Button size="lg" asChild className="hover-scale">
-            <Link href="/shop">Explore Projects <ArrowRight className="ml-2 h-5 w-5" /></Link>
+            <Link href="/shop">
+              <span className="flex items-center">
+                Explore Projects <ArrowRight className="ml-2 h-5 w-5" />
+              </span>
+            </Link>
           </Button>
         </div>
       </section>
-
       {/* FAQ Section */}
       <section className="py-16" id="faq">
         <div className="container mx-auto px-6">
@@ -282,7 +281,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

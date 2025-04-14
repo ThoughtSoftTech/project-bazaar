@@ -56,7 +56,6 @@ export default function ProfilePage() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl fade-in">
             <h1 className="text-3xl font-bold mb-6">My Profile</h1>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* User Info Card */}
                 <Card className="md:col-span-1">
@@ -70,13 +69,13 @@ export default function ProfilePage() {
                     <CardContent>
                         <div className="flex flex-col space-y-3">
                             <Button variant="outline" asChild>
-                                <Link href="/cart">
+                                <Link href="/cart" legacyBehavior>
                                     <Package className="mr-2 h-4 w-4" />
                                     My Cart
                                 </Link>
                             </Button>
                             <Button variant="outline" asChild>
-                                <Link href="/profile/settings">
+                                <Link href="/profile/settings" legacyBehavior>
                                     <Settings className="mr-2 h-4 w-4" />
                                     Account Settings
                                 </Link>
