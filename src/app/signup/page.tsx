@@ -63,6 +63,7 @@ const SignupPage = () => {
 
         setIsLoading(true);
         try {
+            // First, register the user
             const response = await fetchAPI('/api/auth/register', {
                 method: 'POST',
                 headers: {
@@ -75,9 +76,13 @@ const SignupPage = () => {
                 }),
             });
 
-            // Option 1: Automatically log the user in
-            // First, log them in using the credentials they just registered with
+            console.log('Registration successful:', response);
+
+            // Automatically log the user in after successful registration
             try {
+                // Small delay to ensure the user is properly registered in the database
+                await new Promise(resolve => setTimeout(resolve, 300));
+
                 const loginResponse = await fetchAPI('/api/auth/login', {
                     method: 'POST',
                     headers: {
@@ -89,18 +94,19 @@ const SignupPage = () => {
                     }),
                 });
 
-                // Use the login function from AuthContext
+                console.log('Auto-login successful:', loginResponse);
+
+                // Use the login function from AuthContext to set user session
                 login(loginResponse.token, loginResponse.user);
 
-                // Redirect to home page
+                // Redirect to home page after successful login
                 router.push('/');
             } catch (loginError) {
-                // If auto-login fails, redirect to login page
+                console.error('Auto-login failed:', loginError);
+
+                // If auto-login fails, redirect to login page with success message
                 router.push('/login?registered=true');
             }
-
-            // Option 2: Or redirect to login page with success message
-            // router.push('/login?registered=true');
         } catch (error) {
             console.error('Registration error:', error);
             if (error instanceof Error) {

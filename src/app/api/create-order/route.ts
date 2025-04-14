@@ -1,13 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
+import jwt from 'jsonwebtoken';
 import getRazorpayInstance from '@/lib/razorpay';
 import dbConnect from '@/lib/mongodb';
 import Order, { IOrderItem } from '@/models/Order';
 
+// Helper function to extract user ID from JWT token
+const getUserIdFromToken = (request: NextRequest) => {
+    try {
+        // Try to get the token from various places
+        let token = null;
+
+        // 1. Try Authorization header
+        const authHeader = request.headers.get('Authorization');
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            token = authHeader.replace('Bearer ', '');
+        }
+
+        // 2. If no token in Authorization header, try cookies
+        if (!token) {
+            const tokenCookie = request.cookies.get('token');
+            if (tokenCookie) {
+                token = tokenCookie.value;
+            }
+        }
+
+        if (!token) {
+            console.log('No token found in request');
+            return null;
+        }
+
+        // Verify and decode the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret-key') as { id: string };
+        console.log('Successfully decoded token, user ID:', decoded.id);
+        return decoded.id;
+    } catch (error) {
+        console.error('Error verifying token:', error);
+        return null;
+    }
+};
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { items, userId } = body;
+        const { items, userId: clientProvidedUserId } = body;
+
+        // Get user ID from token - this is more secure
+        const tokenUserId = getUserIdFromToken(request);
+        console.log('Token user ID:', tokenUserId);
+        console.log('Client-provided user ID:', clientProvidedUserId);
+
+        // Use token-based user ID if available, fallback to provided userId, or use 'guest' as last resort
+        const finalUserId = tokenUserId || clientProvidedUserId || 'guest';
+        console.log('Final user ID being used:', finalUserId);
 
         if (!items || !Array.isArray(items) || items.length === 0) {
             return NextResponse.json({ message: 'Invalid cart items' }, { status: 400 });
@@ -41,7 +86,7 @@ export async function POST(request: NextRequest) {
         // Save order in pending state
         const orderDoc = {
             orderId,
-            userId: userId || 'guest',
+            userId: finalUserId, // Use the determined userId
             items: items as IOrderItem[],
             totalAmount,
             status: 'pending' as const
@@ -50,6 +95,8 @@ export async function POST(request: NextRequest) {
         // Create a new order document
         const newOrder = new Order(orderDoc);
         await newOrder.save();
+
+        console.log('New order created with userId:', finalUserId);
 
         // Return the order details to the client
         return NextResponse.json({

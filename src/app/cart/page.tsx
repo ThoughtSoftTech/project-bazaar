@@ -70,7 +70,7 @@ interface RazorpayResponse {
 const Cart = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
   const { toast } = useToast();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, token } = useAuth(); // Get token directly from AuthContext
   const router = useRouter();
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -97,7 +97,7 @@ const Cart = () => {
   const handleCheckout = async () => {
     try {
       // Check if the user is authenticated, redirect to login if not
-      if (!isAuthenticated) {
+      if (!isAuthenticated || !user) {
         toast({
           title: "Authentication Required",
           description: "Please log in to your account before completing your purchase.",
@@ -111,6 +111,11 @@ const Cart = () => {
 
         return;
       }
+
+      // Log user information to help with debugging
+      console.log("User authenticated:", isAuthenticated);
+      console.log("User ID for order:", user?._id);
+      console.log("Auth token available:", !!token);
 
       setIsProcessing(true);
 
@@ -126,11 +131,12 @@ const Cart = () => {
         return;
       }
 
-      // Create order on server
+      // Create order on server with token from context
       const response = await fetchAPI('/api/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Use token from context
         },
         body: JSON.stringify({
           items: cartItems.map(item => ({
@@ -143,7 +149,7 @@ const Cart = () => {
             subcategory: item.subcategory || '',
             image: item.image || ''
           })),
-          userId: isAuthenticated && user ? user._id : 'guest',
+          userId: user._id, // Always use the authenticated user ID
         }),
       });
 
@@ -162,13 +168,14 @@ const Cart = () => {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`, // Use token from context
               },
               body: JSON.stringify({
                 razorpay_order_id: paymentResponse.razorpay_order_id,
                 razorpay_payment_id: paymentResponse.razorpay_payment_id,
                 razorpay_signature: paymentResponse.razorpay_signature,
                 orderId: response.orderId,
-                userId: isAuthenticated && user ? user._id : 'guest',
+                userId: user._id, // Always use the actual user ID
                 // Send complete cart items data for storage in MongoDB
                 cartItems: cartItems.map(item => ({
                   projectId: item.id,

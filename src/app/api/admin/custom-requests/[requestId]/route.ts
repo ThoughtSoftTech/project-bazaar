@@ -2,16 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import CustomRequest from '@/models/Custom';
 
+type RouteParams = {
+    params: {
+        requestId: string;
+    };
+};
+
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { requestId: string } }
+    context: RouteParams
 ) {
     try {
         // Connect to MongoDB
         await dbConnect();
 
         // Get request ID from URL parameter
-        const requestId = params.requestId;
+        const requestId = context.params.requestId;
 
         if (!requestId) {
             return NextResponse.json(
