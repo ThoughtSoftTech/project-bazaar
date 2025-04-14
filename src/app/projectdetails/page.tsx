@@ -20,7 +20,7 @@ export default function ProjectDetails() {
     }, 2000);
 
     return () => clearTimeout(timeout);
-  }, []);  // Remove router from dependency array
+  }, [router]);  // Include router in the dependency array to satisfy ESLint
 
   return (
     <div className="container mx-auto px-6 py-16 text-center">
