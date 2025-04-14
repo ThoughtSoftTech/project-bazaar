@@ -1,6 +1,6 @@
 # Project Bazaar
 
-Welcome to **Project Bazaar**, an e-commerce platform designed to provide a seamless shopping experience for users and a robust marketplace for sellers.
+Welcome to **Project Bazaar**, an E-Commerce platform designed to provide a seamless shopping experience for users and a robust marketplace for sellers.
 
 ## Features
 
