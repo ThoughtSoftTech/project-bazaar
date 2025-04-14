@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, ShoppingBag, Trash2, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -70,6 +71,7 @@ const Cart = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -94,6 +96,22 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     try {
+      // Check if the user is authenticated, redirect to login if not
+      if (!isAuthenticated) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to your account before completing your purchase.",
+          variant: "destructive",
+        });
+
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          router.push('/login');
+        }, 1500);
+
+        return;
+      }
+
       setIsProcessing(true);
 
       // Load Razorpay script
@@ -125,7 +143,7 @@ const Cart = () => {
             subcategory: item.subcategory || '',
             image: item.image || ''
           })),
-          userId: isAuthenticated && user ? user.id : 'guest',
+          userId: isAuthenticated && user ? user._id : 'guest',
         }),
       });
 
@@ -150,7 +168,7 @@ const Cart = () => {
                 razorpay_payment_id: paymentResponse.razorpay_payment_id,
                 razorpay_signature: paymentResponse.razorpay_signature,
                 orderId: response.orderId,
-                userId: isAuthenticated && user ? user.id : 'guest',
+                userId: isAuthenticated && user ? user._id : 'guest',
                 // Send complete cart items data for storage in MongoDB
                 cartItems: cartItems.map(item => ({
                   projectId: item.id,
@@ -251,7 +269,7 @@ const Cart = () => {
       <Link
         href="/shop"
         className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8"
-        >
+      >
         <ArrowLeft className="h-4 w-4 mr-1" /> Continue Shopping
       </Link>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

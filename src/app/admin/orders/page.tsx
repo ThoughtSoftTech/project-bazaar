@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import {
     Card, CardContent, CardDescription, CardHeader, CardTitle,
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+    Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,47 +13,68 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
     Check, CheckCircle, ChevronDown, Clock, Eye,
-    Filter, Package, Search, SortAsc, SortDesc
+    Filter, Package, Search, SortAsc, SortDesc, User
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchAPI } from '@/lib/api';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+// Updated Order interface to match MongoDB Atlas structure
+interface OrderItem {
+    _id: string;
+    projectId: string;
+    title: string;
+    price: number;
+    quantity: number;
+    customization?: string;
+    category?: string;
+    subcategory?: string;
+    image?: string;
+}
 
 interface Order {
     _id: string;
     orderId: string;
     userId: string;
-    userName: string;
-    userEmail: string;
-    products: Array<{
-        id: string;
-        name: string;
-        price: number;
-        quantity: number;
-    }>;
+    items: OrderItem[];
     totalAmount: number;
-    paymentStatus: 'paid' | 'pending' | 'failed';
-    orderStatus: 'processing' | 'shipped' | 'delivered' | 'completed';
+    status: 'pending' | 'processing' | 'completed' | 'failed';
     createdAt: string;
-    updatedAt: string;
+    paymentId?: string;
+
+    // For UI display (will fetch separately)
+    customerName?: string;
+    customerEmail?: string;
+}
+
+// Customer interface
+interface Customer {
+    _id: string;
+    name: string;
+    email: string;
 }
 
 export default function AdminOrders() {
+    const router = useRouter();
     const { user, token } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
+    const [customers, setCustomers] = useState<{ [key: string]: Customer }>({});
     const [isLoading, setIsLoading] = useState(true);
     const [sortField, setSortField] = useState<keyof Order>('createdAt');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<string | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [showOrderDetails, setShowOrderDetails] = useState(false);
 
     useEffect(() => {
         const fetchOrders = async () => {
             if (user?.isAdmin) {
                 try {
                     setIsLoading(true);
-                    // In a real app, this would fetch from your backend
+                    // Fetch orders from your MongoDB Atlas database
                     const orderData = await fetchAPI('/api/admin/orders', {
                         headers: {
                             Authorization: `Bearer ${token}`
@@ -60,7 +82,11 @@ export default function AdminOrders() {
                     });
 
                     // If API call fails, use sample data for development
-                    setOrders(orderData || getSampleOrders());
+                    const fetchedOrders = orderData || getSampleOrders();
+                    setOrders(fetchedOrders);
+
+                    // Fetch customer details for all orders
+                    await fetchCustomerDetails(fetchedOrders);
                 } catch (error) {
                     console.error('Error fetching orders:', error);
                     // Use sample data for development
@@ -74,67 +100,116 @@ export default function AdminOrders() {
         fetchOrders();
     }, [user, token]);
 
+    const fetchCustomerDetails = async (orders: Order[]) => {
+        // Extract unique user IDs
+        const userIds = [...new Set(orders.map(order => order.userId))];
+
+        try {
+            // Use the new bulk API endpoint to fetch all customers at once
+            const response = await fetchAPI(`/api/admin/users?ids=${userIds.join(',')}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (response) {
+                setCustomers(response);
+            } else {
+                // Fallback to sample data if API returns nothing
+                const fallbackData: { [key: string]: Customer } = {};
+                userIds.forEach(userId => {
+                    fallbackData[userId] = getSampleCustomer(userId);
+                });
+                setCustomers(fallbackData);
+            }
+        } catch (error) {
+            console.error('Error fetching customer details:', error);
+            // Fallback to sample data on error
+            const fallbackData: { [key: string]: Customer } = {};
+            userIds.forEach(userId => {
+                fallbackData[userId] = getSampleCustomer(userId);
+            });
+            setCustomers(fallbackData);
+        }
+    };
+
+    const getSampleCustomer = (userId: string): Customer => {
+        // Sample customer data based on userId
+        const sampleCustomers: { [key: string]: Customer } = {
+            'user1': { _id: 'user1', name: 'John Doe', email: 'john@example.com' },
+            'user2': { _id: 'user2', name: 'Sarah Chen', email: 'sarah@example.com' },
+            'user3': { _id: 'user3', name: 'Michael Brown', email: 'michael@example.com' },
+            // Default for any other userId
+            'default': { _id: userId, name: 'Customer', email: 'customer@example.com' }
+        };
+
+        return sampleCustomers[userId] || sampleCustomers['default'];
+    };
+
     const getSampleOrders = (): Order[] => {
         return [
             {
                 _id: '1',
-                orderId: 'ORD-2023042',
+                orderId: '487af7a9-41d3-4bea-b0fe-89b0a0bd1075',
                 userId: 'user1',
-                userName: 'John Doe',
-                userEmail: 'john@example.com',
-                products: [
+                items: [
                     {
-                        id: 'web-Web-001',
-                        name: 'Web Development Project',
-                        price: 3500,
-                        quantity: 1
+                        _id: '67fbf91e4bc64ada9707e13c',
+                        projectId: 'eng-Drone-002-1744566513483',
+                        title: 'Aerial Photography Drone',
+                        price: 5249.99,
+                        quantity: 1,
+                        customization: 'Standard package',
+                        category: 'Engineering',
+                        subcategory: 'Drone',
+                        image: '/projects/drone2.png'
                     }
                 ],
-                totalAmount: 3500,
-                paymentStatus: 'paid',
-                orderStatus: 'processing',
-                createdAt: '2023-04-10T10:30:00Z',
-                updatedAt: '2023-04-10T10:30:00Z'
+                totalAmount: 5249.99,
+                status: 'completed',
+                createdAt: '2025-04-13T17:48:52.531+00:00',
+                paymentId: 'pay_QId7amNKuAqSkp'
             },
             {
                 _id: '2',
                 orderId: 'ORD-2023041',
                 userId: 'user2',
-                userName: 'Sarah Chen',
-                userEmail: 'sarah@example.com',
-                products: [
+                items: [
                     {
-                        id: 'ai-AI-002',
-                        name: 'AI Project',
+                        _id: '67fbf91e4bc64ada9707e13d',
+                        projectId: 'ai-AI-002',
+                        title: 'AI Project',
                         price: 5500,
-                        quantity: 1
+                        quantity: 1,
+                        category: 'IT',
+                        subcategory: 'AI',
+                        image: '/projects/ai2.png'
                     }
                 ],
                 totalAmount: 5500,
-                paymentStatus: 'paid',
-                orderStatus: 'completed',
+                status: 'completed',
                 createdAt: '2023-04-05T09:15:00Z',
-                updatedAt: '2023-04-08T14:20:00Z'
+                paymentId: 'pay_sample123'
             },
             {
                 _id: '3',
                 orderId: 'ORD-2023040',
                 userId: 'user3',
-                userName: 'Michael Brown',
-                userEmail: 'michael@example.com',
-                products: [
+                items: [
                     {
-                        id: 'game-Game-001',
-                        name: 'Game Development Project',
+                        _id: '67fbf91e4bc64ada9707e13e',
+                        projectId: 'game-Game-001',
+                        title: 'Game Development Project',
                         price: 4200,
-                        quantity: 1
+                        quantity: 1,
+                        category: 'IT',
+                        subcategory: 'Game',
+                        image: '/projects/game1.png'
                     }
                 ],
                 totalAmount: 4200,
-                paymentStatus: 'paid',
-                orderStatus: 'shipped',
-                createdAt: '2023-04-02T16:45:00Z',
-                updatedAt: '2023-04-04T11:30:00Z'
+                status: 'processing',
+                createdAt: '2023-04-02T16:45:00Z'
             },
         ];
     };
@@ -142,31 +217,40 @@ export default function AdminOrders() {
     const handleMarkAsCompleted = async (orderId: string) => {
         if (user?.isAdmin) {
             try {
-                // In a real app, this would update your backend
-                await fetchAPI(`/api/admin/orders/${orderId}/complete`, {
+                // Call our API endpoint to update the order status in MongoDB
+                await fetchAPI(`/api/admin/orders/${orderId}`, {
                     method: 'PUT',
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({ status: 'completed' })
                 });
 
                 // Update local state
                 setOrders(orders.map(order =>
                     order._id === orderId
-                        ? { ...order, orderStatus: 'completed', updatedAt: new Date().toISOString() }
+                        ? { ...order, status: 'completed' }
                         : order
                 ));
+
+                // Show success toast or notification
+                console.log('Order marked as completed successfully');
             } catch (error) {
                 console.error('Error updating order status:', error);
                 // For development, update the UI anyway
                 setOrders(orders.map(order =>
                     order._id === orderId
-                        ? { ...order, orderStatus: 'completed', updatedAt: new Date().toISOString() }
+                        ? { ...order, status: 'completed' }
                         : order
                 ));
             }
         }
+    };
+
+    const handleViewOrderDetails = (order: Order) => {
+        setSelectedOrder(order);
+        setShowOrderDetails(true);
     };
 
     const handleSort = (field: keyof Order) => {
@@ -178,16 +262,35 @@ export default function AdminOrders() {
         }
     };
 
+    // Get customer name for an order
+    const getCustomerName = (order: Order): string => {
+        const customer = customers[order.userId];
+        return customer ? customer.name : 'Unknown Customer';
+    };
+
+    // Get customer email for an order
+    const getCustomerEmail = (order: Order): string => {
+        const customer = customers[order.userId];
+        return customer ? customer.email : 'unknown@example.com';
+    };
+
     // Sort and filter orders
     const filteredOrders = orders
         .filter(order => {
             // Apply search filter
             if (searchTerm) {
                 const searchLower = searchTerm.toLowerCase();
+                const customerName = getCustomerName(order).toLowerCase();
+                const customerEmail = getCustomerEmail(order).toLowerCase();
+
                 return (
                     order.orderId.toLowerCase().includes(searchLower) ||
-                    order.userName.toLowerCase().includes(searchLower) ||
-                    order.userEmail.toLowerCase().includes(searchLower)
+                    customerName.includes(searchLower) ||
+                    customerEmail.includes(searchLower) ||
+                    order.items.some(item =>
+                        item.title.toLowerCase().includes(searchLower) ||
+                        (item.category && item.category.toLowerCase().includes(searchLower))
+                    )
                 );
             }
             return true;
@@ -195,7 +298,7 @@ export default function AdminOrders() {
         .filter(order => {
             // Apply status filter
             if (filterStatus) {
-                return order.orderStatus === filterStatus;
+                return order.status === filterStatus;
             }
             return true;
         })
@@ -234,14 +337,14 @@ export default function AdminOrders() {
     // Get status badge
     const getStatusBadge = (status: string) => {
         switch (status) {
+            case 'pending':
+                return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
             case 'processing':
-                return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Processing</Badge>;
-            case 'shipped':
-                return <Badge variant="outline" className="bg-blue-100 text-blue-800">Shipped</Badge>;
-            case 'delivered':
-                return <Badge variant="outline" className="bg-indigo-100 text-indigo-800">Delivered</Badge>;
+                return <Badge variant="outline" className="bg-blue-100 text-blue-800">Processing</Badge>;
             case 'completed':
                 return <Badge variant="outline" className="bg-green-100 text-green-800">Completed</Badge>;
+            case 'failed':
+                return <Badge variant="outline" className="bg-red-100 text-red-800">Failed</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }
@@ -285,17 +388,17 @@ export default function AdminOrders() {
                             <DropdownMenuItem onClick={() => setFilterStatus(null)}>
                                 All Statuses
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setFilterStatus('pending')}>
+                                Pending
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setFilterStatus('processing')}>
                                 Processing
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setFilterStatus('shipped')}>
-                                Shipped
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setFilterStatus('delivered')}>
-                                Delivered
-                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setFilterStatus('completed')}>
                                 Completed
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setFilterStatus('failed')}>
+                                Failed
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -326,7 +429,7 @@ export default function AdminOrders() {
                                         </div>
                                     </TableHead>
                                     <TableHead>Customer</TableHead>
-                                    <TableHead>Products</TableHead>
+                                    <TableHead>Items</TableHead>
                                     <TableHead
                                         className="cursor-pointer"
                                         onClick={() => handleSort('totalAmount')}
@@ -367,26 +470,35 @@ export default function AdminOrders() {
                                                 {order.orderId}
                                             </TableCell>
                                             <TableCell>
-                                                <div className="font-medium">{order.userName}</div>
-                                                <div className="text-sm text-muted-foreground">{order.userEmail}</div>
+                                                <div className="font-medium">{getCustomerName(order)}</div>
+                                                <div className="text-sm text-muted-foreground">{getCustomerEmail(order)}</div>
                                             </TableCell>
                                             <TableCell>
-                                                {order.products.map(product => (
-                                                    <div key={product.id} className="text-sm">
-                                                        {product.name} × {product.quantity}
-                                                    </div>
-                                                ))}
+                                                {order.items && order.items.length > 0 ? (
+                                                    <>
+                                                        <div className="text-sm font-medium">
+                                                            {order.items[0].title}
+                                                        </div>
+                                                        {order.items.length > 1 && (
+                                                            <div className="text-xs text-muted-foreground">
+                                                                +{order.items.length - 1} more items
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <div className="text-sm text-muted-foreground">No items</div>
+                                                )}
                                             </TableCell>
                                             <TableCell>₹{order.totalAmount.toLocaleString()}</TableCell>
                                             <TableCell>
-                                                {getStatusBadge(order.orderStatus)}
+                                                {getStatusBadge(order.status)}
                                             </TableCell>
                                             <TableCell>
                                                 {formatDate(order.createdAt)}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    {order.orderStatus !== 'completed' ? (
+                                                    {order.status !== 'completed' ? (
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
@@ -394,7 +506,7 @@ export default function AdminOrders() {
                                                             className="h-8 px-2"
                                                         >
                                                             <CheckCircle className="h-4 w-4 mr-1" />
-                                                            Mark Completed
+                                                            Complete
                                                         </Button>
                                                     ) : (
                                                         <Badge variant="outline" className="bg-green-50 text-green-600">
@@ -402,8 +514,22 @@ export default function AdminOrders() {
                                                         </Badge>
                                                     )}
 
-                                                    <Button size="icon" variant="ghost" className="h-8 w-8">
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-8 w-8"
+                                                        onClick={() => handleViewOrderDetails(order)}
+                                                    >
                                                         <Eye className="h-4 w-4" />
+                                                    </Button>
+
+                                                    <Button
+                                                        size="sm"
+                                                        variant="default"
+                                                        onClick={() => router.push(`/admin/orders/details?id=${order._id}`)}
+                                                        className="h-8"
+                                                    >
+                                                        Details
                                                     </Button>
                                                 </div>
                                             </TableCell>
@@ -415,6 +541,112 @@ export default function AdminOrders() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Order Details Dialog */}
+            {selectedOrder && (
+                <Dialog open={showOrderDetails} onOpenChange={setShowOrderDetails}>
+                    <DialogContent className="sm:max-w-[600px]">
+                        <DialogHeader>
+                            <DialogTitle>Order Details</DialogTitle>
+                            <DialogDescription>
+                                Order ID: {selectedOrder.orderId}
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-4 mt-4">
+                            {/* Customer information */}
+                            <div className="bg-slate-50 p-4 rounded-md">
+                                <h3 className="font-medium flex items-center">
+                                    <User className="h-4 w-4 mr-2" /> Customer Information
+                                </h3>
+                                <div className="mt-2 space-y-1">
+                                    <p><span className="font-medium">Name:</span> {getCustomerName(selectedOrder)}</p>
+                                    <p><span className="font-medium">Email:</span> {getCustomerEmail(selectedOrder)}</p>
+                                    <p><span className="font-medium">Customer ID:</span> {selectedOrder.userId}</p>
+                                </div>
+                            </div>
+
+                            {/* Order items */}
+                            <div>
+                                <h3 className="font-medium mb-2">Order Items</h3>
+                                <div className="border rounded-md divide-y">
+                                    {selectedOrder.items && selectedOrder.items.map((item) => (
+                                        <div key={item._id} className="p-3 flex justify-between items-start">
+                                            <div className="flex gap-3">
+                                                {item.image && (
+                                                    <div className="h-14 w-14 rounded-md overflow-hidden flex-shrink-0">
+                                                        <img
+                                                            src={item.image}
+                                                            alt={item.title}
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <p className="font-medium">{item.title}</p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {item.category} • {item.subcategory}
+                                                    </p>
+                                                    {item.customization && (
+                                                        <p className="text-xs mt-1">Customization: {item.customization}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-medium">₹{item.price.toLocaleString()}</p>
+                                                <p className="text-sm">Qty: {item.quantity}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Order summary */}
+                            <div className="border-t pt-4 mt-4">
+                                <div className="flex justify-between">
+                                    <span className="font-medium">Total Amount:</span>
+                                    <span className="font-bold">₹{selectedOrder.totalAmount.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between mt-2">
+                                    <span className="font-medium">Status:</span>
+                                    <span>{getStatusBadge(selectedOrder.status)}</span>
+                                </div>
+                                <div className="flex justify-between mt-2">
+                                    <span className="font-medium">Date:</span>
+                                    <span>{formatDate(selectedOrder.createdAt)}</span>
+                                </div>
+                                {selectedOrder.paymentId && (
+                                    <div className="flex justify-between mt-2">
+                                        <span className="font-medium">Payment ID:</span>
+                                        <span className="font-mono text-sm">{selectedOrder.paymentId}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Action buttons */}
+                            <div className="flex justify-end gap-3 mt-6">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowOrderDetails(false)}
+                                >
+                                    Close
+                                </Button>
+                                {selectedOrder.status !== 'completed' && (
+                                    <Button
+                                        onClick={() => {
+                                            handleMarkAsCompleted(selectedOrder._id);
+                                            setShowOrderDetails(false);
+                                        }}
+                                    >
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        Mark as Completed
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     );
 }

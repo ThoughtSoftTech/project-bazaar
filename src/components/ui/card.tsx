@@ -175,6 +175,91 @@ const TableCaption = React.forwardRef<
 ))
 TableCaption.displayName = "TableCaption"
 
+// Dialog components
+const Dialog = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & { open?: boolean, onOpenChange?: (open: boolean) => void }
+>(({ className, open, onOpenChange, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "fixed inset-0 z-50 flex items-center justify-center",
+      open ? "visible" : "invisible",
+      className
+    )}
+    {...props}
+  >
+    {open && (
+      <div className="fixed inset-0 bg-black/50" onClick={() => onOpenChange?.(false)} />
+    )}
+  </div>
+))
+Dialog.displayName = "Dialog"
+
+const DialogTrigger = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("", className)}
+    {...props}
+  />
+))
+DialogTrigger.displayName = "DialogTrigger"
+
+const DialogContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "relative bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-auto z-50",
+      className
+    )}
+    onClick={(e) => e.stopPropagation()}
+    {...props}
+  />
+))
+DialogContent.displayName = "DialogContent"
+
+const DialogHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col space-y-1.5 mb-4", className)}
+    {...props}
+  />
+))
+DialogHeader.displayName = "DialogHeader"
+
+const DialogTitle = React.forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h3
+    ref={ref}
+    className={cn("text-lg font-semibold", className)}
+    {...props}
+  />
+))
+DialogTitle.displayName = "DialogTitle"
+
+const DialogDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+DialogDescription.displayName = "DialogDescription"
+
 export {
   Card,
   CardHeader,
@@ -190,4 +275,10 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 }
