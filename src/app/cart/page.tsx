@@ -251,7 +251,7 @@ const Cart = () => {
       <Link
         href="/shop"
         className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8"
-        legacyBehavior>
+        >
         <ArrowLeft className="h-4 w-4 mr-1" /> Continue Shopping
       </Link>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

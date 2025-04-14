@@ -22,6 +22,7 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [serverError, setServerError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [isAdminLogin, setIsAdminLogin] = useState(false);
 
     useEffect(() => {
         // Check if the user just registered
@@ -60,6 +61,26 @@ const LoginPage = () => {
 
         setIsLoading(true);
         try {
+            // For admin login
+            if (isAdminLogin) {
+                if (formData.email === "nk10nikhil@gmail.com" && formData.password === "nk10nikhil") {
+                    // Set admin session
+                    login("admin-token", {
+                        _id: "admin",
+                        name: "Admin",
+                        email: formData.email,
+                        isAdmin: true
+                    });
+                    router.push('/admin/dashboard');
+                    return;
+                } else {
+                    setServerError('Invalid admin credentials');
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
+            // Regular user login
             const response = await fetchAPI('/api/auth/login', {
                 method: 'POST',
                 headers: {
@@ -151,13 +172,25 @@ const LoginPage = () => {
                         </Button>
                     </form>
                 </CardContent>
-                <CardFooter className="flex justify-center">
+                <CardFooter className="flex flex-col gap-2">
                     <p className="text-sm text-muted-foreground">
                         Don&apos;t have an account?{' '}
                         <Link href="/signup" className="text-primary hover:underline">
                             Sign up
                         </Link>
                     </p>
+                    <button
+                        type="button"
+                        onClick={() => setIsAdminLogin(!isAdminLogin)}
+                        className="text-sm text-primary hover:underline"
+                    >
+                        {isAdminLogin ? 'Switch to User Login' : 'Admin Login'}
+                    </button>
+                    {isAdminLogin && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Admin access is restricted to authorized personnel only.
+                        </p>
+                    )}
                 </CardFooter>
             </Card>
         </div>

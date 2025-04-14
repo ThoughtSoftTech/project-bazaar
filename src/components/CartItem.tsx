@@ -41,7 +41,7 @@ const CartItem = ({ item }: CartItemProps) => {
             <Link
               href={`/project/${item.id}`}
               className="font-semibold hover:text-primary transition-colors"
-              legacyBehavior>
+              >
               {item.title}
             </Link>
             <Button 
