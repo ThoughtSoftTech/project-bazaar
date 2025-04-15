@@ -1,49 +1,51 @@
-# Project Bazaar
+# ProjectBazaar
 
-Welcome to **Project Bazaar**, an E-Commerce platform designed to provide a seamless shopping experience for users and a robust marketplace for sellers.
+ProjectBazaar is a platform designed to showcase, discover, and manage various projects efficiently.
 
 ## Features
 
-- **User-Friendly Interface**: Intuitive design for easy navigation.
-- **Secure Transactions**: Ensures safe and encrypted payments.
-- **Product Management**: Tools for sellers to manage inventory and orders.
-- **Search and Filters**: Advanced search and filtering options for buyers.
-- **Responsive Design**: Optimized for both desktop and mobile devices.
+- Browse and search for projects
+- Add, edit, and delete project listings
+- User authentication and authorization
+- Responsive and user-friendly interface
 
-## Technologies Used
+## Getting Started
 
-- **Frontend**: HTML, CSS, JavaScript, React
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB
-- **Payment Integration**: Stripe/PayPal
+### Prerequisites
 
-## Installation
+- Node.js (v14 or above)
+- npm or yarn
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/nk10nikhil/projectbazaar.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd projectbazaar
-    ```
-3. Install dependencies:
-    ```bash
-    npm install
-    ```
-4. Start the development server:
-    ```bash
-    npm start
-    ```
+### Installation
+
+```bash
+git clone https://github.com/nk10nikhil/projectbazaar.git
+cd projectbazaar
+npm install
+```
+
+### Running the Application
+
+```bash
+npm start
+```
+
+## Folder Structure
+
+```
+/projectbazaar
+    /src
+        /components
+        /pages
+        /utils
+    package.json
+    README.md
+```
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository and submit a pull request.
+Contributions are welcome! Please open issues or submit pull requests for improvements.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-For any inquiries, please contact [nk10nikhil@gmail.com](mailto:nk10nikhil@gmail.com).
+This project is licensed under the MIT License.
