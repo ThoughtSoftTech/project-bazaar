@@ -44,12 +44,12 @@ export async function POST(
         // Then, update or create the admin action
         const adminAction = await AdminAction.findOneAndUpdate(
             {
-                userId: order.userId,
+                userId: userId, // Use the admin's userId from the request body
                 itemId: orderId,
                 itemType: 'order'
             },
             {
-                userId: order.userId,
+                userId: userId, // Use the admin's userId from the request body
                 itemId: orderId,
                 itemType: 'order',
                 isCompleted: isCompleted ?? false,
