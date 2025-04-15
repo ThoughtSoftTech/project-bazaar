@@ -131,15 +131,15 @@ const ProjectDetail = () => {
                         </Button>
 
                         {/* <Button 
-              variant="outline" 
-              size="lg"
-              className="flex-1"
-              asChild
-            >
-              <Link to={`/contact?about=${encodeURIComponent(project.title)}`}>
-                Request Custom Changes
-              </Link>
-            </Button> */}
+                            variant="outline" 
+                            size="lg"
+                            className="flex-1"
+                            asChild
+                        >
+                            <Link href={`/contact?about=${encodeURIComponent(project.title)}`}>
+                                Request Custom Changes
+                            </Link>
+                        </Button> */}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
