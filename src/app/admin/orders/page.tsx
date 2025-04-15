@@ -142,7 +142,9 @@ export default function AdminOrders() {
 
         try {
             // Call our new API endpoint to update the admin action
-            const response = await fetchAPI(`/api/admin/orders/${orderId}/action`, {
+            // Fix: Ensure there's no trailing slash by using string replacement if needed
+            const apiUrl = `/api/admin/orders/${orderId}/action`.replace(/\/+$/, '');
+            const response = await fetchAPI(apiUrl, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
