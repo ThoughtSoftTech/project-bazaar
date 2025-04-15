@@ -12,12 +12,18 @@ declare global {
   var mongoose: MongooseCache | undefined;
 }
 
+// Try to get MongoDB URI from environment variables
 const MONGODB_URI = process.env.MONGODB_URI || '';
 
+// Check if MONGODB_URI is defined
 if (!MONGODB_URI) {
-  throw new Error(
-    'Please define the MONGODB_URI environment variable'
-  );
+  console.error('WARNING: MONGODB_URI environment variable is not defined');
+  // In production, we still want to fail to prevent security issues
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'Please define the MONGODB_URI environment variable in your Vercel project settings'
+    );
+  }
 }
 
 /**
