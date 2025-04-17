@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { fetchAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
-import { ArrowRight, Lock, Mail, User, Check, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Lock, Mail, User, Check, ShieldCheck, ShoppingCart } from 'lucide-react';
 
 const SignupPage = () => {
     const router = useRouter();
@@ -173,11 +173,14 @@ const SignupPage = () => {
                             }}
                         />
                         <div className="relative z-10 mb-8">
-                            <img
-                                src="/logo.png"
-                                alt="Project Bazaar"
-                                className="h-16 mb-6"
-                            />
+                            <div className="flex items-center mb-6">
+                                <div className="bg-primary/10 p-3 rounded-full mr-3">
+                                    <ShoppingCart className="h-6 w-6 text-primary" />
+                                </div>
+                                <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                    Project Bazaar
+                                </h2>
+                            </div>
                             <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                                 Join Project Bazaar
                             </h1>
