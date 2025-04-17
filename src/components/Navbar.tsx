@@ -79,35 +79,13 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/">
           <motion.div
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 overflow-hidden"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
-            <motion.span
-              className="text-2xl font-bold"
-              animate={{
-                background: [
-                  "linear-gradient(to right, #3a86ff, #8338ec)",
-                  "linear-gradient(to right, #8338ec, #ff006e)",
-                  "linear-gradient(to right, #ff006e, #fb5607)",
-                  "linear-gradient(to right, #fb5607, #ffbe0b)",
-                  "linear-gradient(to right, #ffbe0b, #3a86ff)"
-                ]
-              }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              style={{
-                backgroundSize: "200% auto",
-                color: "transparent",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text"
-              }}
-            >
+            <span className="text-2xl font-bold text-black">
               Project Bazaar
-            </motion.span>
+            </span>
           </motion.div>
         </Link>
 
@@ -163,7 +141,7 @@ const Navbar = () => {
                 <AnimatePresence>
                   {cartCount > 0 && (
                     <motion.span
-                      className="absolute -top-1 -right-1 bg-cart-bubble text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                      className="absolute -top-1 -right-1 bg-cart-bubble text-white text-xs rounded-full h-7 w-7 flex items-center justify-center"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}

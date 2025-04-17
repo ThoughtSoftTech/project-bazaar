@@ -142,14 +142,19 @@ const LoginPage = () => {
                             }}
                         />
                         <div className="relative z-10 mb-8">
-                            <div className="flex items-center mb-6">
-                                <div className="bg-primary/10 p-3 rounded-full mr-3">
-                                    <ShoppingCart className="h-6 w-6 text-primary" />
+                            {/* Enhanced Project Bazaar Branding */}
+                            <div className="flex items-center mb-8">
+                                <div className="bg-primary/20 p-4 rounded-xl shadow-md mr-4">
+                                    <ShoppingCart size={28} className="text-primary" />
                                 </div>
-                                <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                                    Project Bazaar
-                                </h2>
+                                <div>
+                                    <h2 className="text-3xl font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                        Project Bazaar
+                                    </h2>
+                                    <p className="text-sm text-muted-foreground mt-1">Your marketplace for premium projects</p>
+                                </div>
                             </div>
+
                             <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                                 Welcome Back!
                             </h1>
@@ -186,6 +191,18 @@ const LoginPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
+                    {/* Mobile Logo for small screens */}
+                    <div className="md:hidden flex justify-center mb-6">
+                        <div className="flex items-center">
+                            <div className="bg-primary/20 p-3 rounded-xl shadow-md mr-3">
+                                <ShoppingCart size={20} className="text-primary" />
+                            </div>
+                            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                Project Bazaar
+                            </h2>
+                        </div>
+                    </div>
+
                     <Card className="border-none shadow-lg bg-card/70 backdrop-blur-sm">
                         <CardHeader className="space-y-2">
                             <div className="flex justify-center mb-2">
