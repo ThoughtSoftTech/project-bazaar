@@ -1,106 +1,86 @@
 "use client";
 
-import React, { useState, useRef, ReactNode, CSSProperties } from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface Card3DProps {
-    children: ReactNode;
+    children: React.ReactNode;
     className?: string;
-    style?: CSSProperties;
     intensity?: number;
-    scale?: number;
-    glare?: boolean;
-    shadow?: boolean;
-    disabled?: boolean;
+    isRotated?: boolean;
+    glassEffect?: boolean;
 }
 
 const Card3D = ({
     children,
-    className = '',
-    style,
-    intensity = 20,
-    scale = 1.02,
-    glare = true,
-    shadow = true,
-    disabled = false,
+    className,
+    intensity = 10,
+    isRotated = true,
+    glassEffect = false,
 }: Card3DProps) => {
-    const [rotateX, setRotateX] = useState(0);
-    const [rotateY, setRotateY] = useState(0);
-    const [glarePosition, setGlarePosition] = useState({ x: 0, y: 0 });
     const cardRef = useRef<HTMLDivElement>(null);
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [isHovered, setIsHovered] = useState(false);
 
-    // Handle mouse movement for 3D effect
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (disabled || !cardRef.current) return;
+        if (!cardRef.current || !isRotated) return;
 
-        // Get position of the card
-        const rect = cardRef.current.getBoundingClientRect();
+        const card = cardRef.current;
+        const rect = card.getBoundingClientRect();
 
-        // Calculate mouse position relative to card center (from -0.5 to 0.5)
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        // Calculate the position of the mouse relative to the card
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-        // Set rotation based on mouse position and intensity
-        setRotateX(-y * intensity); // Negative because we want to rotate towards the mouse
-        setRotateY(x * intensity);
+        // Calculate the position as a percentage of the card dimensions
+        const xPercent = (x / rect.width - 0.5) * 2; // -1 to 1
+        const yPercent = (y / rect.height - 0.5) * 2; // -1 to 1
 
-        // Calculate glare position (normalized from 0 to 100%)
-        setGlarePosition({
-            x: (e.clientX - rect.left) / rect.width * 100,
-            y: (e.clientY - rect.top) / rect.height * 100
-        });
+        setPosition({ x: xPercent, y: yPercent });
+    };
+
+    const handleMouseEnter = () => {
+        setIsHovered(true);
     };
 
     const handleMouseLeave = () => {
-        // Reset the rotation when mouse leaves
-        setRotateX(0);
-        setRotateY(0);
+        setIsHovered(false);
+        setPosition({ x: 0, y: 0 });
+    };
+
+    // Calculate the rotation transform based on mouse position
+    const rotateY = isRotated && isHovered ? position.x * intensity : 0;
+    const rotateX = isRotated && isHovered ? -position.y * intensity : 0;
+
+    const style: React.CSSProperties = {
+        transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${isHovered ? 1.02 : 1})`,
+        transition: isHovered ? 'transform 0.1s ease-out' : 'transform 0.5s ease-out',
+        willChange: 'transform',
+        transformStyle: 'preserve-3d',
     };
 
     return (
-        <motion.div
+        <div
             ref={cardRef}
-            className={`overflow-hidden ${className}`}
-            style={{
-                transformStyle: "preserve-3d",
-                perspective: "1000px",
-                ...style
-            }}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            whileHover={!disabled ? { scale } : {}}
-            transition={{
-                type: "spring",
-                stiffness: 300,
-                damping: 20
-            }}
-        >
-            <motion.div
-                style={{
-                    width: "100%",
-                    height: "100%",
-                    transformStyle: "preserve-3d",
-                    rotateX: rotateX,
-                    rotateY: rotateY,
-                    boxShadow: shadow ? "0px 10px 30px -5px rgba(0,0,0,0.1)" : "none",
-                }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-                {children}
-            </motion.div>
-
-            {/* Glare effect */}
-            {glare && !disabled && (
-                <motion.div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                        background: `radial-gradient(circle at ${glarePosition.x}% ${glarePosition.y}%, rgba(255,255,255,0.2) 0%, transparent 60%)`,
-                        opacity: Math.max(Math.abs(rotateX), Math.abs(rotateY)) / intensity,
-                    }}
-                />
+            className={cn(
+                "card-3d-container relative",
+                { "shadow-card": isHovered },
+                { "glass": glassEffect },
+                className
             )}
-        </motion.div>
+            onMouseMove={handleMouseMove}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={style}
+        >
+            {children}
+
+            {/* Add subtle highlight effect when hovered */}
+            {isHovered && (
+                <div className="absolute inset-0 pointer-events-none rounded-xl bg-gradient-to-t from-primary/10 via-transparent to-accent/10 opacity-60" />
+            )}
+        </div>
     );
-}
+};
 
 export default Card3D;

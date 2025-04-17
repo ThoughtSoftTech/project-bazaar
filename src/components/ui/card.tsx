@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      "rounded-lg border bg-card text-card-foreground shadow-md transition-all duration-200 hover:shadow-lg relative overflow-hidden flex flex-col",
       className
     )}
     {...props}
@@ -23,7 +23,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    className={cn("flex flex-col space-y-1.5 p-6 pb-3 flex-shrink-0", className)}
     {...props}
   />
 ))
@@ -60,7 +60,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+  <div ref={ref} className={cn("p-6 pt-3 flex-grow", className)} {...props} />
 ))
 CardContent.displayName = "CardContent"
 
@@ -70,11 +70,38 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
+    className={cn("flex items-center p-6 pt-3 flex-shrink-0", className)}
     {...props}
   />
 ))
 CardFooter.displayName = "CardFooter"
+
+// Enhanced Card version with glass effect and 3D hover
+const GlassCard = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & { variant?: 'default' | 'gradient' | 'hover3d' }
+>(({ className, variant = 'default', ...props }, ref) => {
+  const baseClasses = "rounded-lg backdrop-blur-sm shadow-lg transition-all duration-300 overflow-hidden border flex flex-col";
+
+  const variantClasses = {
+    default: "bg-card/70 hover:bg-card/90",
+    gradient: "bg-gradient-to-br from-card/80 to-background/90 hover:from-card/90 hover:to-background/95",
+    hover3d: "bg-card/80 hover:-translate-y-1 hover:shadow-xl"
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        baseClasses,
+        variantClasses[variant],
+        className
+      )}
+      {...props}
+    />
+  );
+});
+GlassCard.displayName = "GlassCard";
 
 // Table components for admin dashboard
 const Table = React.forwardRef<
@@ -267,6 +294,7 @@ export {
   CardTitle,
   CardDescription,
   CardContent,
+  GlassCard,
   Table,
   TableHeader,
   TableBody,
