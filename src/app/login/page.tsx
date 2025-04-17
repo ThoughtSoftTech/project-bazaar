@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { fetchAPI } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { ArrowRight, Lock, Mail, User } from 'lucide-react';
 
 const LoginPage = () => {
     const router = useRouter();
@@ -25,7 +27,6 @@ const LoginPage = () => {
     const [isAdminLogin, setIsAdminLogin] = useState(false);
 
     useEffect(() => {
-        // Check if the user just registered
         const justRegistered = searchParams.get('registered');
         if (justRegistered === 'true') {
             setSuccessMessage('Account created successfully! Please log in.');
@@ -61,10 +62,8 @@ const LoginPage = () => {
 
         setIsLoading(true);
         try {
-            // For admin login
             if (isAdminLogin) {
                 if (formData.email === "nk10nikhil@gmail.com" && formData.password === "nk10nikhil") {
-                    // Set admin session
                     login("admin-token", {
                         _id: "admin",
                         name: "Admin",
@@ -80,7 +79,6 @@ const LoginPage = () => {
                 }
             }
 
-            // Regular user login
             const response = await fetchAPI('/api/auth/login', {
                 method: 'POST',
                 headers: {
@@ -92,10 +90,7 @@ const LoginPage = () => {
                 }),
             });
 
-            // Use AuthContext login function instead of directly setting localStorage
             login(response.token, response.user);
-
-            // Redirect to home page or dashboard
             router.push('/');
         } catch (error) {
             console.error('Login error:', error);
@@ -112,87 +107,229 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="container mx-auto px-6 py-12 flex justify-center">
-            <Card className="w-full max-w-md">
-                <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
-                    <CardDescription className="text-center">
-                        Enter your credentials to access your account
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {serverError && (
-                        <Alert variant="destructive" className="mb-4">
-                            <AlertDescription>{serverError}</AlertDescription>
-                        </Alert>
-                    )}
-
-                    {successMessage && (
-                        <Alert className="mb-4 bg-green-50 border-green-200">
-                            <AlertDescription className="text-green-700">{successMessage}</AlertDescription>
-                        </Alert>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="john@example.com"
-                                value={formData.email}
-                                onChange={handleChange}
-                                disabled={isLoading}
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/10 p-4">
+            <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-center">
+                <motion.div
+                    className="hidden md:flex flex-col justify-center items-center p-8"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <div className="relative">
+                        <motion.div
+                            className="absolute -top-6 -left-6 w-24 h-24 bg-primary/10 rounded-full"
+                            animate={{
+                                scale: [1, 1.1, 1],
+                                rotate: [0, 10, 0]
+                            }}
+                            transition={{
+                                duration: 8,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        />
+                        <motion.div
+                            className="absolute -bottom-10 -right-8 w-32 h-32 bg-accent/10 rounded-full"
+                            animate={{
+                                scale: [1, 1.15, 1],
+                                rotate: [0, -10, 0]
+                            }}
+                            transition={{
+                                duration: 10,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 1
+                            }}
+                        />
+                        <div className="relative z-10 mb-8">
+                            <img
+                                src="/logo.png"
+                                alt="Project Bazaar"
+                                className="h-16 mb-6"
                             />
-                            {errors.email && <span className="text-sm text-red-500">{errors.email}</span>}
+                            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                Welcome Back!
+                            </h1>
+                            <p className="text-muted-foreground max-w-md">
+                                Sign in to access your account and continue exploring our curated collection of high-quality projects.
+                            </p>
                         </div>
 
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="password">Password</Label>
-                                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                                    Forgot password?
-                                </Link>
+                        <div className="mt-8 space-y-4 relative z-10">
+                            <div className="flex items-center space-x-3">
+                                <div className="bg-primary/10 p-2 rounded-full">
+                                    <User className="h-5 w-5 text-primary" />
+                                </div>
+                                <p className="text-sm">Access your purchases and downloads</p>
                             </div>
-                            <Input
-                                id="password"
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={handleChange}
-                                disabled={isLoading}
-                            />
-                            {errors.password && <span className="text-sm text-red-500">{errors.password}</span>}
+                            <div className="flex items-center space-x-3">
+                                <div className="bg-accent/10 p-2 rounded-full">
+                                    <Lock className="h-5 w-5 text-accent" />
+                                </div>
+                                <p className="text-sm">Securely manage your account</p>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                                <div className="bg-primary/10 p-2 rounded-full">
+                                    <ArrowRight className="h-5 w-5 text-primary" />
+                                </div>
+                                <p className="text-sm">Get started with your next project</p>
+                            </div>
                         </div>
+                    </div>
+                </motion.div>
 
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? 'Signing in...' : 'Sign In'}
-                        </Button>
-                    </form>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-2">
-                    <p className="text-sm text-muted-foreground">
-                        Don&apos;t have an account?{' '}
-                        <Link href="/signup" className="text-primary hover:underline">
-                            Sign up
-                        </Link>
-                    </p>
-                    <button
-                        type="button"
-                        onClick={() => setIsAdminLogin(!isAdminLogin)}
-                        className="text-sm text-primary hover:underline"
-                    >
-                        {isAdminLogin ? 'Switch to User Login' : 'Admin Login'}
-                    </button>
-                    {isAdminLogin && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Admin access is restricted to authorized personnel only.
-                        </p>
-                    )}
-                </CardFooter>
-            </Card>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                    <Card className="border-none shadow-lg bg-card/70 backdrop-blur-sm">
+                        <CardHeader className="space-y-2">
+                            <div className="flex justify-center mb-2">
+                                <div className="bg-primary/10 p-3 rounded-full">
+                                    <Lock className="h-6 w-6 text-primary" />
+                                </div>
+                            </div>
+                            <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
+                            <CardDescription className="text-center">
+                                Enter your credentials to access your account
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {serverError && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <Alert variant="destructive" className="mb-4">
+                                        <AlertDescription>{serverError}</AlertDescription>
+                                    </Alert>
+                                </motion.div>
+                            )}
+
+                            {successMessage && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <Alert className="mb-4 border border-green-200 bg-green-50">
+                                        <AlertDescription className="text-green-700">{successMessage}</AlertDescription>
+                                    </Alert>
+                                </motion.div>
+                            )}
+
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            placeholder="john@example.com"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            disabled={isLoading}
+                                            className="pl-10"
+                                        />
+                                    </div>
+                                    {errors.email && (
+                                        <motion.span
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="text-sm text-red-500"
+                                        >
+                                            {errors.email}
+                                        </motion.span>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                                        <Link
+                                            href="/forgot-password"
+                                            className="text-xs text-primary hover:text-primary/80 hover:underline transition-colors"
+                                        >
+                                            Forgot password?
+                                        </Link>
+                                    </div>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            id="password"
+                                            name="password"
+                                            type="password"
+                                            placeholder="••••••••"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            disabled={isLoading}
+                                            className="pl-10"
+                                        />
+                                    </div>
+                                    {errors.password && (
+                                        <motion.span
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="text-sm text-red-500"
+                                        >
+                                            {errors.password}
+                                        </motion.span>
+                                    )}
+                                </div>
+
+                                <motion.div
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    <Button
+                                        type="submit"
+                                        className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? (
+                                            <div className="flex items-center">
+                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Signing in...
+                                            </div>
+                                        ) : 'Sign In'}
+                                    </Button>
+                                </motion.div>
+                            </form>
+                        </CardContent>
+                        <CardFooter className="flex flex-col gap-3 border-t border-border/50 pt-4">
+                            <p className="text-sm text-muted-foreground text-center">
+                                Don&apos;t have an account?{' '}
+                                <Link href="/signup" className="text-primary font-medium hover:underline">
+                                    Sign up
+                                </Link>
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => setIsAdminLogin(!isAdminLogin)}
+                                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                            >
+                                {isAdminLogin ? 'Switch to User Login' : 'Admin Login'}
+                            </button>
+                            {isAdminLogin && (
+                                <motion.p
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="text-xs text-muted-foreground mt-1 text-center italic"
+                                >
+                                    Admin access is restricted to authorized personnel only.
+                                </motion.p>
+                            )}
+                        </CardFooter>
+                    </Card>
+                </motion.div>
+            </div>
         </div>
     );
 };
