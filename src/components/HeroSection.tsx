@@ -1,70 +1,281 @@
 "use client";
-import React from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import React, { useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const HeroSection = () => {
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Handle mouse movement effect
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!containerRef.current) return;
+
+            const { clientX, clientY } = e;
+            const { innerWidth, innerHeight } = window;
+
+            // Calculate mouse position as a percentage of the window
+            const x = clientX / innerWidth;
+            const y = clientY / innerHeight;
+
+            // Apply a subtle parallax effect to different elements
+            const elements = containerRef.current.querySelectorAll('.parallax-element');
+            elements.forEach((el: Element) => {
+                const htmlEl = el as HTMLElement;
+                const speedX = parseFloat(htmlEl.dataset.speedX || '0');
+                const speedY = parseFloat(htmlEl.dataset.speedY || '0');
+
+                const moveX = (x - 0.5) * speedX;
+                const moveY = (y - 0.5) * speedY;
+
+                htmlEl.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, []);
+
     return (
-        <section className="relative overflow-hidden py-12 md:py-20 lg:py-28">
-            {/* Colorful background elements */}
-            <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-primary/20 blur-3xl"></div>
-            <div className="absolute top-1/2 -right-24 h-64 w-64 rounded-full bg-accent/20 blur-3xl"></div>
-            <div className="absolute bottom-0 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-secondary/20 blur-3xl"></div>
+        <div
+            ref={containerRef}
+            className="relative bg-gradient-to-b from-background to-secondary/20 pt-16 pb-4 sm:pb-24  overflow-hidden"
+        >
+            {/* Floating geometric shapes */}
+            <div
+                className="absolute inset-0 pointer-events-none overflow-hidden"
+                style={{ opacity: 0.5 }}
+            >
+                {/* Circle */}
+                <motion.div
+                    className="absolute top-[10%] left-[15%] w-64 h-64 rounded-full bg-primary/5 parallax-element"
+                    animate={{
+                        y: [0, -15, 0],
+                        rotate: [0, 5, 0],
+                    }}
+                    transition={{
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                    data-speed-x="20"
+                    data-speed-y="10"
+                />
 
-            <div className="container relative z-10 mx-auto px-4">
-                <div className="grid items-center gap-12 lg:grid-cols-2">
-                    <div className="flex flex-col items-start">
-                        <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-                            <span className="text-gradient bg-gradient-vibrant">Project Bazaar</span>
-                            <span className="block mt-3">Your Project Marketplace</span>
-                        </h1>
-                        <p className="mb-8 max-w-lg text-lg text-muted-foreground md:text-xl">
-                            Discover, buy, and sell amazing projects across various domains.
-                            From web development to robotics, we have everything you need.
-                        </p>
-                        <div className="flex flex-wrap gap-4">
-                            <Link href="/shop" className="w-full sm:w-auto">
-                                <Button size="lg" className="w-full sm:w-auto bg-gradient-vibrant hover:opacity-90 transition-opacity">
-                                    Explore Projects
-                                </Button>
-                            </Link>
-                            <Link href="/custom" className="w-full sm:w-auto">
-                                <Button variant="outline" size="lg" className="w-full sm:w-auto border-primary/50 hover:border-primary">
-                                    Custom Request
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
+                {/* Rectangle */}
+                <motion.div
+                    className="absolute bottom-[15%] right-[10%] w-48 h-32 rounded-lg bg-accent/5 parallax-element"
+                    animate={{
+                        y: [0, 20, 0],
+                        rotate: [0, -5, 0],
+                    }}
+                    transition={{
+                        duration: 10,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 0.5
+                    }}
+                    data-speed-x="-15"
+                    data-speed-y="-20"
+                />
 
-                    <div className="relative">
-                        <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-2xl border border-border/50 shadow-2xl">
-                            <Image
-                                src="/project.png"
-                                alt="Project Showcase"
-                                fill
-                                className="object-cover"
-                                priority
-                            />
-
-                            {/* Animated highlight effect */}
-                            <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-accent/30 opacity-40"></div>
-                        </div>
-
-                        {/* Floating decorator elements */}
-                        <div className="absolute -top-6 -right-6 h-24 w-24 rounded-xl bg-secondary/80 p-2 shadow-lg backdrop-blur-md float-animation">
-                            <Image src="/file.svg" alt="File" width={60} height={60} />
-                        </div>
-                        <div className="absolute -bottom-8 -left-8 h-20 w-20 rounded-xl bg-primary/80 p-2 shadow-lg backdrop-blur-md float-animation animation-delay-500">
-                            <Image src="/globe.svg" alt="Globe" width={50} height={50} />
-                        </div>
-                        <div className="absolute bottom-12 -right-10 h-16 w-16 rounded-xl bg-accent/80 p-2 shadow-lg backdrop-blur-md float-animation animation-delay-1000">
-                            <Image src="/window.svg" alt="Window" width={40} height={40} />
-                        </div>
-                    </div>
+                {/* Triangle */}
+                <div
+                    className="absolute top-[30%] right-[20%] parallax-element"
+                    data-speed-x="-30"
+                    data-speed-y="30"
+                >
+                    <motion.div
+                        animate={{
+                            rotate: [0, 360],
+                        }}
+                        transition={{
+                            duration: 40,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                    >
+                        <div
+                            className="w-0 h-0 border-l-[75px] border-l-transparent border-b-[130px] border-b-primary/5 border-r-[75px] border-r-transparent"
+                        />
+                    </motion.div>
                 </div>
+
+                {/* Small floating dots */}
+                {[...Array(15)].map((_, i) => {
+                    const size = Math.random() * 10 + 5;
+                    const left = `${Math.random() * 100}%`;
+                    const top = `${Math.random() * 100}%`;
+                    const duration = Math.random() * 10 + 15;
+                    const delay = Math.random() * 5;
+
+                    return (
+                        <motion.div
+                            key={i}
+                            className="absolute rounded-full bg-primary/10 parallax-element"
+                            style={{
+                                width: size,
+                                height: size,
+                                left,
+                                top,
+                            }}
+                            animate={{
+                                y: [0, -30, 0],
+                                opacity: [0.3, 0.8, 0.3]
+                            }}
+                            transition={{
+                                duration,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay
+                            }}
+                            data-speed-x={(Math.random() * 40 - 20).toString()}
+                            data-speed-y={(Math.random() * 40 - 20).toString()}
+                        />
+                    );
+                })}
             </div>
-        </section>
+
+            <div className="container mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center">
+                {/* Text content */}
+                <motion.div
+                    className="lg:w-1/2 text-center lg:text-left mb-16 lg:mb-0"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.7, ease: "easeOut" }}
+                >
+                    <div className="inline-block px-3 py-1 mb-6 text-sm font-medium bg-primary/10 text-primary rounded-full">
+                        Elevate your tech portfolio with quality projects
+                    </div>
+
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                        Find the Perfect Tech Projects For Your Portfolio
+                    </h1>
+
+                    <p className="text-muted-foreground text-lg mb-8 max-w-lg mx-auto lg:mx-0">
+                        Browse our curated collection of high-quality tech projects designed to enhance your portfolio and showcase your skills to potential employers.
+                    </p>
+
+                    <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            <Button size="lg" className="font-medium">
+                                <Link href="/shop" className="flex items-center">
+                                    Browse Projects
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </motion.div>
+
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            <Button size="lg" variant="outline" className="font-medium">
+                                <Link href="/custom">Request Custom Project</Link>
+                            </Button>
+                        </motion.div>
+                    </div>
+                </motion.div>
+
+                {/* 3D Illustration/Card */}
+                <motion.div
+                    className="lg:w-1/2"
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
+                >
+                    <div className="relative w-[600px] max-w-lg mx-auto hidden sm:block">
+                        {/* Main card with perspective effect */}
+                        <div className="relative w-full aspect-square max-w-md mx-auto">
+                            <motion.div
+                                className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 p-1 shadow-xl"
+                                style={{
+                                    transformStyle: 'preserve-3d',
+                                    perspective: '1000px'
+                                }}
+                                animate={{
+                                    rotateY: [0, 10, 0, -10, 0],
+                                    rotateX: [0, -10, 0, 10, 0],
+                                }}
+                                transition={{
+                                    duration: 20,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                            >
+                                <div className="bg-card dark:bg-card/90 h-full w-full rounded-lg flex items-center justify-center p-8 overflow-hidden">
+                                    {/* Project showcase mockup */}
+                                    <div className="relative w-full">
+                                        <div className="rounded-lg overflow-hidden shadow-lg border border-border">
+                                            <img
+                                                src="/project.png"
+                                                alt="Project"
+                                                className="w-full h-auto object-cover"
+                                            />
+                                            {/* <div className="p-4 bg-background/80 backdrop-blur-sm">
+                                                <h3 className="font-medium">Web Application Project</h3>
+                                                <div className="flex items-center justify-between mt-2">
+                                                    <span className="text-sm text-muted-foreground">Web Development</span>
+                                                    <span className="font-semibold">Rs 2,499</span>
+                                                </div>
+                                            </div> */}
+                                        </div>
+
+                                        {/* Floating tech icons */}
+                                        <motion.div
+                                            className="absolute -top-5 -right-5 bg-primary/90 w-12 h-12 rounded-full flex items-center justify-center text-white parallax-element"
+                                            animate={{
+                                                y: [0, -10, 0],
+                                                rotate: [0, 10, 0]
+                                            }}
+                                            transition={{
+                                                duration: 5,
+                                                repeat: Infinity,
+                                                ease: "easeInOut"
+                                            }}
+                                            data-speed-x="40"
+                                            data-speed-y="20"
+                                        >
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                                                <path d="M12 18.1387L4.4812 13.5557V4.38965L12 9.00242L19.5188 4.38965V13.5557L12 18.1387Z" stroke="currentColor" strokeWidth="2" />
+                                            </svg>
+                                        </motion.div>
+
+                                        <motion.div
+                                            className="absolute -bottom-5 -left-5 bg-accent/90 w-14 h-14 rounded-full flex items-center justify-center parallax-element"
+                                            animate={{
+                                                y: [0, 10, 0],
+                                                rotate: [0, -10, 0]
+                                            }}
+                                            transition={{
+                                                duration: 7,
+                                                repeat: Infinity,
+                                                ease: "easeInOut",
+                                                delay: 1
+                                            }}
+                                            data-speed-x="-30"
+                                            data-speed-y="-25"
+                                        >
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
+                                                <path d="M20 4L13.5 6.5M20 4L14.5 11M20 4L3 16M3 16L9.5 8.5M3 16L9.5 19.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        </motion.div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        </div>
     );
 };
 

@@ -7,12 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { motion } from 'framer-motion';
-import { ArrowRight, Lock, Mail, User, ShoppingCart, UserPlus, Check, ShieldCheck } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { ArrowRight, Lock, Mail, User, Check, ShieldCheck, ShoppingCart } from 'lucide-react';
 
 const SignupPage = () => {
     const router = useRouter();
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -23,6 +25,15 @@ const SignupPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [serverError, setServerError] = useState('');
     const [formCompletion, setFormCompletion] = useState(0);
+
+    const calculateCompletion = () => {
+        let completed = 0;
+        if (formData.name) completed += 25;
+        if (formData.email) completed += 25;
+        if (formData.password) completed += 25;
+        if (formData.confirmPassword) completed += 25;
+        setFormCompletion(completed);
+    };
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
@@ -55,14 +66,8 @@ const SignupPage = () => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
 
-        // Clear error when user types
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
-        }
-
-        // Update form completion percentage
-        const filledFields = Object.values(formData).filter(field => field.trim() !== '').length;
-        setFormCompletion(Math.round((filledFields / 4) * 100));
+        // Calculate form completion percentage whenever form data changes
+        setTimeout(calculateCompletion, 100);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -73,7 +78,8 @@ const SignupPage = () => {
 
         setIsLoading(true);
         try {
-            await fetchAPI('/api/auth/register', {
+            // First, register the user
+            const response = await fetchAPI('/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,7 +91,37 @@ const SignupPage = () => {
                 }),
             });
 
-            router.push('/login?registered=true');
+            console.log('Registration successful:', response);
+
+            // Automatically log the user in after successful registration
+            try {
+                // Small delay to ensure the user is properly registered in the database
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                const loginResponse = await fetchAPI('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: formData.email,
+                        password: formData.password,
+                    }),
+                });
+
+                console.log('Auto-login successful:', loginResponse);
+
+                // Use the login function from AuthContext to set user session
+                login(loginResponse.token, loginResponse.user);
+
+                // Redirect to home page after successful login
+                router.push('/');
+            } catch (loginError) {
+                console.error('Auto-login failed:', loginError);
+
+                // If auto-login fails, redirect to login page with success message
+                router.push('/login?registered=true');
+            }
         } catch (error) {
             console.error('Registration error:', error);
             if (error instanceof Error) {
@@ -93,7 +129,7 @@ const SignupPage = () => {
             } else if (typeof error === 'object' && error && 'message' in error) {
                 setServerError(String(error.message));
             } else {
-                setServerError('Registration failed. Please try again.');
+                setServerError('An unknown error occurred');
             }
         } finally {
             setIsLoading(false);
@@ -101,7 +137,7 @@ const SignupPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/10 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/10 p-4">
             <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-center">
                 {/* Left side - decorative illustration/branding */}
                 <motion.div
@@ -112,7 +148,7 @@ const SignupPage = () => {
                 >
                     <div className="relative">
                         <motion.div
-                            className="absolute -top-6 -right-6 w-28 h-28 bg-accent/20 rounded-full blur-sm"
+                            className="absolute -top-6 -right-6 w-28 h-28 bg-accent/10 rounded-full"
                             animate={{
                                 scale: [1, 1.1, 1],
                                 rotate: [0, -10, 0]
@@ -124,7 +160,7 @@ const SignupPage = () => {
                             }}
                         />
                         <motion.div
-                            className="absolute -bottom-8 -left-8 w-24 h-24 bg-primary/20 rounded-full blur-sm"
+                            className="absolute -bottom-8 -left-8 w-24 h-24 bg-primary/10 rounded-full"
                             animate={{
                                 scale: [1, 1.15, 1],
                                 rotate: [0, 10, 0]
@@ -136,36 +172,21 @@ const SignupPage = () => {
                                 delay: 1
                             }}
                         />
-
-                        <motion.div
-                            className="absolute top-20 right-10 w-16 h-16 bg-gradient-cool opacity-30 rounded-full blur-md"
-                            animate={{
-                                scale: [1, 1.2, 1],
-                                x: [0, 15, 0]
-                            }}
-                            transition={{
-                                duration: 7,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                                delay: 0.5
-                            }}
-                        />
-
                         <div className="relative z-10 mb-8">
                             {/* Enhanced Project Bazaar Branding */}
                             <div className="flex items-center mb-8">
-                                <div className="bg-gradient-vibrant p-4 rounded-xl shadow-lg mr-4 glow-effect">
-                                    <ShoppingCart size={28} className="text-white" />
+                                <div className="bg-primary/20 p-4 rounded-xl shadow-md mr-4">
+                                    <ShoppingCart size={28} className="text-primary" />
                                 </div>
                                 <div>
-                                    <h2 className="text-3xl font-extrabold text-gradient bg-gradient-to-r from-primary via-accent to-primary">
+                                    <h2 className="text-3xl font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                                         Project Bazaar
                                     </h2>
                                     <p className="text-sm text-muted-foreground mt-1">Your marketplace for premium projects</p>
                                 </div>
                             </div>
 
-                            <h1 className="text-4xl font-bold mb-4 text-gradient bg-gradient-to-r from-primary to-accent">
+                            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                                 Join Project Bazaar
                             </h1>
                             <p className="text-muted-foreground max-w-md">
@@ -173,22 +194,22 @@ const SignupPage = () => {
                             </p>
                         </div>
 
-                        <div className="mt-8 space-y-4 relative z-10 staggered-fade-in">
+                        <div className="mt-8 space-y-4 relative z-10">
                             <div className="flex items-center space-x-3">
-                                <div className="bg-gradient-cool p-2 rounded-full shadow-md">
-                                    <Check className="h-5 w-5 text-white" />
+                                <div className="bg-primary/10 p-2 rounded-full">
+                                    <Check className="h-5 w-5 text-primary" />
                                 </div>
                                 <p className="text-sm">Access exclusive project collections</p>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <div className="bg-gradient-warm p-2 rounded-full shadow-md">
-                                    <ShieldCheck className="h-5 w-5 text-white" />
+                                <div className="bg-accent/10 p-2 rounded-full">
+                                    <ShieldCheck className="h-5 w-5 text-accent" />
                                 </div>
                                 <p className="text-sm">Secure payment and download process</p>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <div className="bg-gradient-vibrant p-2 rounded-full shadow-md">
-                                    <ArrowRight className="h-5 w-5 text-white" />
+                                <div className="bg-primary/10 p-2 rounded-full">
+                                    <ArrowRight className="h-5 w-5 text-primary" />
                                 </div>
                                 <p className="text-sm">Request customization for your needs</p>
                             </div>
@@ -205,20 +226,20 @@ const SignupPage = () => {
                     {/* Mobile Logo for small screens */}
                     <div className="md:hidden flex justify-center mb-6">
                         <div className="flex items-center">
-                            <div className="bg-gradient-vibrant p-3 rounded-xl shadow-md mr-3 glow-effect">
-                                <ShoppingCart size={20} className="text-white" />
+                            <div className="bg-primary/20 p-3 rounded-xl shadow-md mr-3">
+                                <ShoppingCart size={20} className="text-primary" />
                             </div>
-                            <h2 className="text-2xl font-bold text-gradient bg-gradient-to-r from-primary to-accent">
+                            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                                 Project Bazaar
                             </h2>
                         </div>
                     </div>
 
-                    <Card className="border-none shadow-lg glass-effect card-3d">
+                    <Card className="border-none shadow-lg bg-card/70 backdrop-blur-sm">
                         <CardHeader className="space-y-2">
                             <div className="flex justify-center mb-2">
-                                <div className="bg-gradient-vibrant p-3 rounded-full shadow-md">
-                                    <User className="h-6 w-6 text-white" />
+                                <div className="bg-primary/10 p-3 rounded-full">
+                                    <User className="h-6 w-6 text-primary" />
                                 </div>
                             </div>
                             <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
@@ -226,9 +247,9 @@ const SignupPage = () => {
                                 Enter your information to get started
                             </CardDescription>
 
-                            {/* Form completion progress bar with enhanced styling */}
+                            {/* Form completion progress bar */}
                             <div className="mt-4">
-                                <div className="w-full bg-muted/50 h-1.5 rounded-full overflow-hidden backdrop-blur-sm">
+                                <div className="w-full bg-secondary/30 h-1.5 rounded-full overflow-hidden">
                                     <motion.div
                                         className="h-full bg-gradient-to-r from-primary to-accent"
                                         initial={{ width: "0%" }}
@@ -266,14 +287,14 @@ const SignupPage = () => {
                                             value={formData.name}
                                             onChange={handleChange}
                                             disabled={isLoading}
-                                            className="pl-10 focus:ring-2 focus:ring-primary/50 transition-all"
+                                            className="pl-10"
                                         />
                                     </div>
                                     {errors.name && (
                                         <motion.span
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="text-sm text-destructive"
+                                            className="text-sm text-red-500"
                                         >
                                             {errors.name}
                                         </motion.span>
@@ -292,14 +313,14 @@ const SignupPage = () => {
                                             value={formData.email}
                                             onChange={handleChange}
                                             disabled={isLoading}
-                                            className="pl-10 focus:ring-2 focus:ring-primary/50 transition-all"
+                                            className="pl-10"
                                         />
                                     </div>
                                     {errors.email && (
                                         <motion.span
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="text-sm text-destructive"
+                                            className="text-sm text-red-500"
                                         >
                                             {errors.email}
                                         </motion.span>
@@ -318,23 +339,23 @@ const SignupPage = () => {
                                             value={formData.password}
                                             onChange={handleChange}
                                             disabled={isLoading}
-                                            className="pl-10 focus:ring-2 focus:ring-primary/50 transition-all"
+                                            className="pl-10"
                                         />
                                     </div>
                                     {errors.password && (
                                         <motion.span
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="text-sm text-destructive"
+                                            className="text-sm text-red-500"
                                         >
                                             {errors.password}
                                         </motion.span>
                                     )}
                                     {formData.password && formData.password.length > 0 && (
                                         <div className="mt-1 flex space-x-1">
-                                            <div className={`h-1 flex-1 rounded-full ${formData.password.length < 6 ? 'bg-destructive/80' : formData.password.length < 10 ? 'bg-gradient-warm' : 'bg-gradient-cool'}`}></div>
-                                            <div className={`h-1 flex-1 rounded-full ${formData.password.length < 8 ? 'bg-muted' : formData.password.length < 10 ? 'bg-gradient-warm' : 'bg-gradient-cool'}`}></div>
-                                            <div className={`h-1 flex-1 rounded-full ${formData.password.length < 10 ? 'bg-muted' : 'bg-gradient-cool'}`}></div>
+                                            <div className={`h-1 flex-1 rounded-full ${formData.password.length < 6 ? 'bg-red-400' : formData.password.length < 10 ? 'bg-yellow-400' : 'bg-green-400'}`}></div>
+                                            <div className={`h-1 flex-1 rounded-full ${formData.password.length < 8 ? 'bg-muted' : formData.password.length < 10 ? 'bg-yellow-400' : 'bg-green-400'}`}></div>
+                                            <div className={`h-1 flex-1 rounded-full ${formData.password.length < 10 ? 'bg-muted' : 'bg-green-400'}`}></div>
                                         </div>
                                     )}
                                 </div>
@@ -351,14 +372,14 @@ const SignupPage = () => {
                                             value={formData.confirmPassword}
                                             onChange={handleChange}
                                             disabled={isLoading}
-                                            className="pl-10 focus:ring-2 focus:ring-primary/50 transition-all"
+                                            className="pl-10"
                                         />
                                     </div>
                                     {errors.confirmPassword && (
                                         <motion.span
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="text-sm text-destructive"
+                                            className="text-sm text-red-500"
                                         >
                                             {errors.confirmPassword}
                                         </motion.span>
@@ -372,7 +393,7 @@ const SignupPage = () => {
                                 >
                                     <Button
                                         type="submit"
-                                        className="w-full bg-gradient-vibrant hover:opacity-90 transition-all shadow-md"
+                                        className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all"
                                         disabled={isLoading}
                                     >
                                         {isLoading ? (
@@ -388,10 +409,10 @@ const SignupPage = () => {
                                 </motion.div>
                             </form>
                         </CardContent>
-                        <CardFooter className="flex justify-center border-t border-border/30 pt-4 bg-muted/30 backdrop-blur-sm">
+                        <CardFooter className="flex justify-center border-t border-border/50 pt-4">
                             <p className="text-sm text-muted-foreground text-center">
                                 Already have an account?{' '}
-                                <Link href="/login" className="text-primary font-medium hover:text-accent hover:underline transition-colors">
+                                <Link href="/login" className="text-primary font-medium hover:underline">
                                     Sign in
                                 </Link>
                             </p>
