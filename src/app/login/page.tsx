@@ -107,7 +107,7 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/10 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/10 p-4">
             <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-center">
                 <motion.div
                     className="hidden md:flex flex-col justify-center items-center p-8"
@@ -117,45 +117,59 @@ const LoginPage = () => {
                 >
                     <div className="relative">
                         <motion.div
-                            className="absolute -top-6 -left-6 w-24 h-24 bg-primary/10 rounded-full"
+                            className="absolute -top-6 -left-6 w-32 h-32 bg-accent/20 rounded-full blur-sm"
                             animate={{
                                 scale: [1, 1.1, 1],
                                 rotate: [0, 10, 0]
                             }}
                             transition={{
-                                duration: 8,
+                                duration: 10,
                                 repeat: Infinity,
                                 ease: "easeInOut"
                             }}
                         />
                         <motion.div
-                            className="absolute -bottom-10 -right-8 w-32 h-32 bg-accent/10 rounded-full"
+                            className="absolute -bottom-8 -right-8 w-24 h-24 bg-primary/20 rounded-full blur-sm"
                             animate={{
                                 scale: [1, 1.15, 1],
                                 rotate: [0, -10, 0]
                             }}
                             transition={{
-                                duration: 10,
+                                duration: 8,
                                 repeat: Infinity,
                                 ease: "easeInOut",
                                 delay: 1
                             }}
                         />
+
+                        <motion.div
+                            className="absolute top-20 right-0 w-16 h-16 bg-gradient-warm opacity-30 rounded-full blur-md"
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                y: [0, -15, 0]
+                            }}
+                            transition={{
+                                duration: 7,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 0.5
+                            }}
+                        />
+
                         <div className="relative z-10 mb-8">
-                            {/* Enhanced Project Bazaar Branding */}
                             <div className="flex items-center mb-8">
-                                <div className="bg-primary/20 p-4 rounded-xl shadow-md mr-4">
-                                    <ShoppingCart size={28} className="text-primary" />
+                                <div className="bg-gradient-vibrant p-4 rounded-xl shadow-lg mr-4 glow-effect">
+                                    <ShoppingCart size={28} className="text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-3xl font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                    <h2 className="text-3xl font-extrabold text-gradient bg-gradient-to-r from-primary via-accent to-primary">
                                         Project Bazaar
                                     </h2>
                                     <p className="text-sm text-muted-foreground mt-1">Your marketplace for premium projects</p>
                                 </div>
                             </div>
 
-                            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                            <h1 className="text-4xl font-bold mb-4 text-gradient bg-gradient-to-r from-primary to-accent">
                                 Welcome Back!
                             </h1>
                             <p className="text-muted-foreground max-w-md">
@@ -163,22 +177,22 @@ const LoginPage = () => {
                             </p>
                         </div>
 
-                        <div className="mt-8 space-y-4 relative z-10">
+                        <div className="mt-8 space-y-4 relative z-10 staggered-fade-in">
                             <div className="flex items-center space-x-3">
-                                <div className="bg-primary/10 p-2 rounded-full">
-                                    <User className="h-5 w-5 text-primary" />
+                                <div className="bg-gradient-cool p-2 rounded-full shadow-md">
+                                    <User className="h-5 w-5 text-white" />
                                 </div>
                                 <p className="text-sm">Access your purchases and downloads</p>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <div className="bg-accent/10 p-2 rounded-full">
-                                    <Lock className="h-5 w-5 text-accent" />
+                                <div className="bg-gradient-warm p-2 rounded-full shadow-md">
+                                    <Lock className="h-5 w-5 text-white" />
                                 </div>
                                 <p className="text-sm">Securely manage your account</p>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <div className="bg-primary/10 p-2 rounded-full">
-                                    <ArrowRight className="h-5 w-5 text-primary" />
+                                <div className="bg-gradient-vibrant p-2 rounded-full shadow-md">
+                                    <ArrowRight className="h-5 w-5 text-white" />
                                 </div>
                                 <p className="text-sm">Get started with your next project</p>
                             </div>
@@ -191,23 +205,22 @@ const LoginPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                    {/* Mobile Logo for small screens */}
                     <div className="md:hidden flex justify-center mb-6">
                         <div className="flex items-center">
-                            <div className="bg-primary/20 p-3 rounded-xl shadow-md mr-3">
-                                <ShoppingCart size={20} className="text-primary" />
+                            <div className="bg-gradient-vibrant p-3 rounded-xl shadow-md mr-3 glow-effect">
+                                <ShoppingCart size={20} className="text-white" />
                             </div>
-                            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                            <h2 className="text-2xl font-bold text-gradient bg-gradient-to-r from-primary to-accent">
                                 Project Bazaar
                             </h2>
                         </div>
                     </div>
 
-                    <Card className="border-none shadow-lg bg-card/70 backdrop-blur-sm">
+                    <Card className="border-none shadow-lg glass-effect card-3d">
                         <CardHeader className="space-y-2">
                             <div className="flex justify-center mb-2">
-                                <div className="bg-primary/10 p-3 rounded-full">
-                                    <Lock className="h-6 w-6 text-primary" />
+                                <div className="bg-gradient-vibrant p-3 rounded-full shadow-md">
+                                    <Lock className="h-6 w-6 text-white" />
                                 </div>
                             </div>
                             <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
@@ -253,14 +266,14 @@ const LoginPage = () => {
                                             value={formData.email}
                                             onChange={handleChange}
                                             disabled={isLoading}
-                                            className="pl-10"
+                                            className="pl-10 focus:ring-2 focus:ring-primary/50 transition-all"
                                         />
                                     </div>
                                     {errors.email && (
                                         <motion.span
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="text-sm text-red-500"
+                                            className="text-sm text-destructive"
                                         >
                                             {errors.email}
                                         </motion.span>
@@ -272,7 +285,7 @@ const LoginPage = () => {
                                         <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                                         <Link
                                             href="/forgot-password"
-                                            className="text-xs text-primary hover:text-primary/80 hover:underline transition-colors"
+                                            className="text-xs text-primary hover:text-accent hover:underline transition-colors"
                                         >
                                             Forgot password?
                                         </Link>
@@ -287,14 +300,14 @@ const LoginPage = () => {
                                             value={formData.password}
                                             onChange={handleChange}
                                             disabled={isLoading}
-                                            className="pl-10"
+                                            className="pl-10 focus:ring-2 focus:ring-primary/50 transition-all"
                                         />
                                     </div>
                                     {errors.password && (
                                         <motion.span
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="text-sm text-red-500"
+                                            className="text-sm text-destructive"
                                         >
                                             {errors.password}
                                         </motion.span>
@@ -304,10 +317,11 @@ const LoginPage = () => {
                                 <motion.div
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
+                                    className="pt-2"
                                 >
                                     <Button
                                         type="submit"
-                                        className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all"
+                                        className="w-full bg-gradient-vibrant hover:opacity-90 transition-all shadow-md"
                                         disabled={isLoading}
                                     >
                                         {isLoading ? (
@@ -323,10 +337,10 @@ const LoginPage = () => {
                                 </motion.div>
                             </form>
                         </CardContent>
-                        <CardFooter className="flex flex-col gap-3 border-t border-border/50 pt-4">
+                        <CardFooter className="flex flex-col gap-3 border-t border-border/30 pt-4 bg-muted/30 backdrop-blur-sm">
                             <p className="text-sm text-muted-foreground text-center">
                                 Don&apos;t have an account?{' '}
-                                <Link href="/signup" className="text-primary font-medium hover:underline">
+                                <Link href="/signup" className="text-primary font-medium hover:text-accent hover:underline transition-colors">
                                     Sign up
                                 </Link>
                             </p>
