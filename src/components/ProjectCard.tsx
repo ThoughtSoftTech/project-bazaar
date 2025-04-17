@@ -2,7 +2,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Card3D from "@/components/ui/card3d";
+import  Card  from "@/components/ui/card3d";
 
 interface ProjectCardProps {
   id: string;
@@ -23,15 +23,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   return (
     <Link href={`/projectdetails/${id}`} className="block">
-      <Card3D className="group h-full" intensity={5} isRotated={true} glassEffect={true}>
-        <div className="relative h-full overflow-hidden rounded-xl border border-border/50 bg-card text-card-foreground shadow-sm">
+      <Card className="group h-full transition-all duration-300 hover:scale-[1.02]">
+        <div className="relative h-full overflow-hidden rounded-xl bg-gradient-to-br from-secondary/20 to-background border border-border/50 backdrop-blur-sm">
           <div className="relative aspect-[4/3] w-full overflow-hidden">
             <Image
               src={image}
               alt={title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-110"
-              priority
             />
             {category && (
               <div className="absolute right-3 top-3 rounded-full bg-primary/90 px-3 py-1 text-xs font-medium text-primary-foreground backdrop-blur-sm">
@@ -49,18 +48,24 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </p>
 
             {price !== undefined && (
-              <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-primary">
-                  ₹{price.toLocaleString()}
+              <div className="flex items-center justify-between mt-auto">
+                <span className="text-base font-medium text-foreground">
+                  ₹{price.toLocaleString("en-IN")}
                 </span>
-                <button className="rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+                <span className="inline-flex items-center justify-center rounded-full bg-secondary/30 px-3 py-1 text-xs font-medium text-secondary-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   View Details
-                </button>
+                </span>
               </div>
             )}
           </div>
+
+          {/* Subtle gradient overlay for depth */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none dark:from-white/10"></div>
+
+          {/* Highlight effect */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/20 via-transparent to-accent/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none"></div>
         </div>
-      </Card3D>
+      </Card>
     </Link>
   );
 };
