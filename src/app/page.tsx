@@ -36,7 +36,7 @@ export default function Home() {
       <HeroSection />
 
       {/* Categories Section */}
-      <section className="py-16 bg-gradient-to-b from-background to-secondary/10">
+      <section className="pb-16 bg-gradient-to-b from-background to-secondary/10">
         <div className="container mx-auto px-6">
           <ParallaxSection direction="up" speed={0.2}>
             <div className="text-center mb-12">
@@ -97,13 +97,13 @@ export default function Home() {
                           >
                             <span className="flex items-center">
                               <motion.span
-                                className="inline-block"
+                                className="inline-flex items-center"
                                 initial={{ x: 0 }}
                                 whileHover={{ x: 5 }}
                                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
                               >
                                 <ArrowRight className="h-4 w-4 mr-2 group-hover:text-primary transition-colors" />
-                                {subcategory}
+                                <span>{subcategory}</span>
                               </motion.span>
                             </span>
                           </Link>

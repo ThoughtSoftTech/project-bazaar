@@ -44,7 +44,7 @@ const HeroSection = () => {
     return (
         <div
             ref={containerRef}
-            className="relative bg-gradient-to-b from-background to-secondary/20 pt-16 pb-24 overflow-hidden"
+            className="relative bg-gradient-to-b from-background to-secondary/20 pt-16 pb-4 sm:pb-24  overflow-hidden"
         >
             {/* Floating geometric shapes */}
             <div
@@ -192,7 +192,7 @@ const HeroSection = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
                 >
-                    <div className="relative w-full max-w-lg mx-auto">
+                    <div className="relative w-[600px] max-w-lg mx-auto hidden sm:block">
                         {/* Main card with perspective effect */}
                         <div className="relative w-full aspect-square max-w-md mx-auto">
                             <motion.div
@@ -220,13 +220,13 @@ const HeroSection = () => {
                                                 alt="Project"
                                                 className="w-full h-auto object-cover"
                                             />
-                                            <div className="p-4 bg-background/80 backdrop-blur-sm">
+                                            {/* <div className="p-4 bg-background/80 backdrop-blur-sm">
                                                 <h3 className="font-medium">Web Application Project</h3>
                                                 <div className="flex items-center justify-between mt-2">
                                                     <span className="text-sm text-muted-foreground">Web Development</span>
                                                     <span className="font-semibold">Rs 2,499</span>
                                                 </div>
-                                            </div>
+                                            </div> */}
                                         </div>
 
                                         {/* Floating tech icons */}
