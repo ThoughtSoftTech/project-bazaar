@@ -78,6 +78,17 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* New 3D effect variables */
+  --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+  --card-shadow-hover: 0 20px 30px -10px rgba(0, 0, 0, 0.1);
+  --card-shadow-active: 0 5px 15px -5px rgba(0, 0, 0, 0.1);
+  --highlight-glow: 0 0 15px 5px rgba(255, 255, 255, 0.5);
+  --glass-background: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shine: linear-gradient(120deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(255, 255, 255, 0) 70%);
 }
 
 .dark {
@@ -114,14 +125,32 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* New 3D effect variables for dark mode */
+  --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2);
+  --card-shadow-hover: 0 30px 60px -15px rgba(0, 0, 0, 0.4);
+  --card-shadow-active: 0 5px 15px -5px rgba(0, 0, 0, 0.3);
+  --highlight-glow: 0 0 15px 5px rgba(80, 60, 230, 0.4);
+  --glass-background: rgba(30, 30, 40, 0.3);
+  --glass-border: rgba(80, 80, 95, 0.3);
+  --glass-shine: linear-gradient(120deg,
+      rgba(120, 120, 140, 0.3) 0%,
+      rgba(50, 50, 75, 0) 70%);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
   }
 }
 
@@ -144,6 +173,102 @@
 
   .hover-scale {
     @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  /* New 3D and animation utilities */
+  .glass-effect {
+    /* Remove the problematic opacity classes and use only standard tailwind classes */
+    @apply backdrop-blur-lg border;
+    background: var(--glass-background);
+    border-color: var(--glass-border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-effect::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--glass-shine);
+    transform: rotate(30deg);
+    pointer-events: none;
+  }
+
+  .card-3d {
+    @apply transition-all duration-300 shadow-lg;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .card-3d:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-5px) scale(1.02);
+  }
+
+  .card-3d:active {
+    box-shadow: var(--card-shadow-active);
+    transform: translateY(0) scale(0.98);
+  }
+
+  .glow-effect {
+    position: relative;
+  }
+
+  .glow-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    box-shadow: var(--highlight-glow);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .glow-effect:hover::after {
+    opacity: 1;
+  }
+
+  .float-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .staggered-fade-in>* {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: staggerFadeIn 0.5s ease-out forwards;
+  }
+
+  .staggered-fade-in>*:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+
+  .staggered-fade-in>*:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .staggered-fade-in>*:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  .staggered-fade-in>*:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+
+  .staggered-fade-in>*:nth-child(5) {
+    animation-delay: 0.5s;
+  }
+
+  .staggered-fade-in>*:nth-child(6) {
+    animation-delay: 0.6s;
   }
 }
 
@@ -178,5 +303,64 @@
   to {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes staggerFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 5px 0 rgba(var(--primary-rgb), 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 20px 5px rgba(var(--primary-rgb), 0.8);
+  }
+
+  100% {
+    box-shadow: 0 0 5px 0 rgba(var(--primary-rgb), 0.5);
+  }
+}
+
+@keyframes rotate3d {
+  0% {
+    transform: rotate3d(0, 1, 0, 0deg);
+  }
+
+  100% {
+    transform: rotate3d(0, 1, 0, 360deg);
   }
 }

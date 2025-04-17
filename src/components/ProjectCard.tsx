@@ -1,18 +1,21 @@
 "use client";
 import React, { memo, useCallback } from 'react';
 import Link from 'next/link';
-import { Star, ShoppingCart, Eye, ArrowRight } from 'lucide-react';
+import { Star, ShoppingCart, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { Project } from '@/data/projects';
+import Card3D from '@/components/ui/card3d';
 
 interface ProjectCardProps {
   project: Project;
   featured?: boolean;
+  index?: number; // For staggered animations
 }
 
-const ProjectCard = memo(({ project, featured = false }: ProjectCardProps) => {
+const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardProps) => {
   const { addToCart } = useCart();
 
   // Memoize the handleAddToCart function
@@ -28,65 +31,113 @@ const ProjectCard = memo(({ project, featured = false }: ProjectCardProps) => {
     });
   }, [addToCart, project]);
 
+  // Staggered animation delay based on index
+  const animationDelay = index * 0.1;
+
   return (
-    <div
-      className={`bg-card rounded-lg overflow-hidden border border-border shadow-sm transition-all duration-300 hover:shadow-md ${featured ? 'scale-in' : 'fade-in'
-        }`}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.5,
+        delay: animationDelay,
+        ease: "easeOut"
+      }}
     >
-      {/* Image Section */}
-      <div className="relative">
-        <img
-          src={project.image}
-          alt={project.title}
-          className="w-full h-48 object-cover"
-        />
-        {featured && (
-          <Badge className="absolute top-2 right-2 bg-primary">Featured</Badge>
-        )}
-      </div>
-      {/* Content Section */}
-      <div className="p-4">
-        {/* Title and Subcategory */}
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg line-clamp-1">
-            {project.title}
-          </h3>
-          <Badge variant="outline">{project.subcategory}</Badge>
-        </div>
-
-        {/* Description */}
-        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-          {project.description}
-        </p>
-
-        {/* Rating and Price */}
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-            <span className="text-sm font-medium">
-              {project.rating} ({project.downloads} downloads)
-            </span>
+      <Card3D
+        className="rounded-lg overflow-hidden"
+        intensity={15}
+        scale={1.03}
+      >
+        <div className="h-full relative bg-card border border-border shadow-sm">
+          {/* Image Section with hover zoom effect */}
+          <div className="relative overflow-hidden h-48">
+            <motion.img
+              src={project.image}
+              alt={project.title}
+              className="w-full h-full object-cover"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+            />
+            {/* Glass overlay with subcategory */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black/30 backdrop-blur-sm p-2 flex justify-between items-center">
+              <Badge variant="outline" className="bg-background/50 backdrop-blur-sm border-0">
+                {project.subcategory}
+              </Badge>
+              {project.rating && (
+                <div className="flex items-center text-white">
+                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 mr-1" />
+                  <span className="text-xs font-medium">{project.rating}</span>
+                </div>
+              )}
+            </div>
+            {featured && (
+              <Badge className="absolute top-2 right-2 bg-primary/90 backdrop-blur-sm shadow-lg">
+                Featured
+              </Badge>
+            )}
           </div>
-          <span className="font-bold text-lg">
-            Rs {project.price.toFixed(2)}
-          </span>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" className="flex-1" asChild>
-            <Link href={`/projectdetails/${project.id}`}>
-              <span className="flex items-center">
-                View Details <ArrowRight className="ml-2 h-4 w-4"/>
-              </span>
-            </Link>
-          </Button>
-          <Button size="sm" className="flex-1" onClick={handleAddToCart}>
-            <ShoppingCart className="h-4 w-4 mr-2" /> Add to cart
-          </Button>
+          {/* Content Section */}
+          <div className="p-4">
+            {/* Title */}
+            <h3 className="font-semibold text-lg line-clamp-1 mb-2">
+              {project.title}
+            </h3>
+
+            {/* Description */}
+            <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+              {project.description}
+            </p>
+
+            {/* Price and Downloads */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="text-sm text-muted-foreground">
+                {project.downloads} downloads
+              </div>
+              <motion.span
+                className="font-bold text-lg"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                Rs {project.price.toFixed(2)}
+              </motion.span>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 group"
+                asChild
+              >
+                <Link href={`/projectdetails/${project.id}`}>
+                  <span className="flex items-center">
+                    View Details
+                    <motion.span
+                      initial={{ x: 0 }}
+                      whileHover={{ x: 3 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:text-primary transition-colors" />
+                    </motion.span>
+                  </span>
+                </Link>
+              </Button>
+              <motion.button
+                type="button"
+                className="flex-1 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-background border border-input hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+                onClick={handleAddToCart}
+                whileHover={{ scale: 1.03 }}
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" /> Add to cart
+              </motion.button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </Card3D>
+    </motion.div>
   );
 });
 
