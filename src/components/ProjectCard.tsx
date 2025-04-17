@@ -1,8 +1,8 @@
 "use client";
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import Link from 'next/link';
-import { Star, ShoppingCart, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Star, ShoppingCart, ArrowRight, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
@@ -17,6 +17,7 @@ interface ProjectCardProps {
 
 const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardProps) => {
   const { addToCart } = useCart();
+  const [isAdded, setIsAdded] = useState(false);
 
   // Memoize the handleAddToCart function
   const handleAddToCart = useCallback(() => {
@@ -29,6 +30,14 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
       subcategory: project.subcategory,
       image: project.image,
     });
+
+    // Set added state to trigger animation
+    setIsAdded(true);
+
+    // Reset state after animation (3 seconds)
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 2000);
   }, [addToCart, project]);
 
   // Staggered animation delay based on index
@@ -127,11 +136,37 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
               </Button>
               <motion.button
                 type="button"
-                className="flex-1 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-background border border-input hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+                className={`flex-1 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none h-9 px-4 py-2 whitespace-nowrap overflow-hidden ${isAdded ? 'bg-blue-900 text-white border-blue-900' : 'bg-background border border-input hover:bg-accent hover:text-accent-foreground'}`}
                 onClick={handleAddToCart}
                 whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                disabled={isAdded}
               >
-                <ShoppingCart className="h-4 w-4 mr-2" /> Add to cart
+                <AnimatePresence mode="wait">
+                  {isAdded ? (
+                    <motion.span
+                      key="added"
+                      className="flex items-center"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Check className="h-4 w-4 mr-1" /> Added
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="add"
+                      className="flex items-center"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-1" /> Add to cart
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </motion.button>
             </div>
           </div>
