@@ -27,40 +27,24 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
       title: project.title,
       price: project.price,
       category: project.category,
-      subcategory: project.subcategory,
-      image: project.image,
+      image: project.image
     });
-
-    // Set added state to trigger animation
     setIsAdded(true);
-
-    // Reset state after animation (3 seconds)
-    setTimeout(() => {
-      setIsAdded(false);
-    }, 2000);
+    setTimeout(() => setIsAdded(false), 2000); // Reset after 2 seconds
   }, [addToCart, project]);
-
-  // Staggered animation delay based on index
-  const animationDelay = index * 0.1;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.5,
-        delay: animationDelay,
-        ease: "easeOut"
-      }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="h-full"
     >
-      <Card3D
-        className="rounded-lg overflow-hidden"
-        intensity={15}
-        scale={1.03}
-      >
-        <div className="h-full relative bg-card border border-border shadow-sm">
-          {/* Image Section with hover zoom effect */}
-          <div className="relative overflow-hidden h-48">
+      <Card3D className="h-full bg-gradient-to-br from-background via-background to-secondary/5 border border-border group">
+        <div className="flex flex-col h-full">
+          {/* Image Section */}
+          <div className="relative overflow-hidden rounded-t-lg">
             <motion.img
               src={project.image}
               alt={project.title}
@@ -70,7 +54,7 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
             />
             {/* Glass overlay with subcategory */}
             <div className="absolute bottom-0 left-0 right-0 bg-black/30 backdrop-blur-sm p-2 flex justify-between items-center">
-              <Badge variant="outline" className="bg-background/50 backdrop-blur-sm border-0">
+              <Badge variant="outline" className="bg-background/50 backdrop-blur-sm border-primary/20 border">
                 {project.subcategory}
               </Badge>
               {project.rating && (
@@ -81,16 +65,19 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
               )}
             </div>
             {featured && (
-              <Badge className="absolute top-2 right-2 bg-primary/90 backdrop-blur-sm shadow-lg">
+              <Badge className="absolute top-2 right-2 bg-primary/90 backdrop-blur-sm shadow-lg neon-border">
                 Featured
               </Badge>
             )}
+
+            {/* Cyberpunk overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
 
           {/* Content Section */}
-          <div className="p-4">
+          <div className="p-4 flex flex-col flex-grow">
             {/* Title */}
-            <h3 className="font-semibold text-lg line-clamp-1 mb-2">
+            <h3 className="font-semibold text-lg line-clamp-1 mb-2 group-hover:text-primary transition-colors">
               {project.title}
             </h3>
 
@@ -100,16 +87,16 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
             </p>
 
             {/* Price and Downloads */}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4 mt-auto">
               <div className="text-sm text-muted-foreground">
                 {project.downloads} downloads
               </div>
               <motion.span
-                className="font-bold text-lg"
+                className="font-bold text-lg cyber-gradient"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
               >
-                Rs {project.price.toFixed(2)}
+                ₹{project.price.toFixed(2)}
               </motion.span>
             </div>
 
@@ -118,7 +105,7 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1 group"
+                className="flex-1 group glass-effect backdrop-blur-sm"
                 asChild
               >
                 <Link href={`/projectdetails/${project.id}`}>
@@ -136,7 +123,7 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
               </Button>
               <motion.button
                 type="button"
-                className={`flex-1 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none h-9 px-4 py-2 whitespace-nowrap overflow-hidden ${isAdded ? 'bg-blue-900 text-white border-blue-900' : 'bg-background border border-input hover:bg-accent hover:text-accent-foreground'}`}
+                className={`flex-1 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none h-9 px-4 py-2 whitespace-nowrap overflow-hidden ${isAdded ? 'bg-blue-900 text-white border-blue-900' : 'cyber-button'}`}
                 onClick={handleAddToCart}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
@@ -176,7 +163,6 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
   );
 });
 
-// Add display name to fix ESLint warning
 ProjectCard.displayName = 'ProjectCard';
 
 export default ProjectCard;

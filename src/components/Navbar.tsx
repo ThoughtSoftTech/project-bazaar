@@ -69,12 +69,14 @@ const Navbar = () => {
 
   return (
     <motion.nav
-      className={`sticky top-0 z-50 transition-all duration-300 px-6 py-4 ${scrolled ? 'py-2' : 'py-4'
-        }`}
+      className={`sticky top-0 z-50 transition-all duration-300 px-6 py-4 ${scrolled ? 'py-2' : 'py-4'} scan-line`}
       variants={navbarVariants}
       initial="top"
       animate={scrolled ? "scrolled" : "top"}
       transition={{ duration: 0.3 }}
+      style={{
+        background: scrolled ? 'rgba(30, 30, 60, 0.8)' : 'rgba(30, 30, 60, 0.4)',
+      }}
     >
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/">
@@ -83,7 +85,7 @@ const Navbar = () => {
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
-            <span className="text-2xl font-bold text-black">
+            <span className="text-2xl font-bold cyber-gradient">
               Project Bazaar
             </span>
           </motion.div>
@@ -100,7 +102,7 @@ const Navbar = () => {
                     asChild
                   >
                     <Link href={i === 0 ? "/" : i === 1 ? "/shop" : "/custom"}>
-                      <motion.span whileHover={linkHover}>
+                      <motion.span whileHover={linkHover} className="relative">
                         {item}
                         <motion.span
                           className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full transform scale-x-0 origin-left"
@@ -141,7 +143,7 @@ const Navbar = () => {
                 <AnimatePresence>
                   {cartCount > 0 && (
                     <motion.span
-                      className="absolute -top-1 -right-1 bg-cart-bubble text-white text-xs rounded-full h-7 w-7 flex items-center justify-center"
+                      className="absolute -top-1 -right-1 bg-cart-bubble text-white text-xs rounded-full h-7 w-7 flex items-center justify-center neon-border"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
@@ -167,13 +169,13 @@ const Navbar = () => {
                 </motion.div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="glass-effect border border-border/30 backdrop-blur-lg">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel className="cyber-gradient font-bold">My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile</Link>
+                  <Link href="/profile" className="hover:text-primary transition-colors">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/orders">My Orders</Link>
+                  <Link href="/orders" className="hover:text-primary transition-colors">My Orders</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-red-500" onClick={logout}>
@@ -194,7 +196,7 @@ const Navbar = () => {
 
               <Link href="/signup">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button size="sm" className="glow-effect">Sign Up</Button>
+                  <Button size="sm" className="cyber-button">Sign Up</Button>
                 </motion.div>
               </Link>
             </div>
@@ -217,12 +219,12 @@ const Navbar = () => {
 
           <Link href="/cart" className="relative">
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button variant="ghost" size="icon" className="rounded-full glass-effect">
                 <ShoppingCart className="h-5 w-5" />
                 <AnimatePresence>
                   {cartCount > 0 && (
                     <motion.span
-                      className="absolute -top-1 -right-1 bg-cart-bubble text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                      className="absolute -top-1 -right-1 bg-cart-bubble text-white text-xs rounded-full h-5 w-5 flex items-center justify-center neon-border"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
@@ -262,7 +264,7 @@ const Navbar = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            className="md:hidden absolute top-full left-0 right-0 bg-background/90 backdrop-blur-lg border-b p-4"
+            className="md:hidden absolute top-full left-0 right-0 bg-background/90 backdrop-blur-lg border-b p-4 glass-card"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -335,7 +337,7 @@ const Navbar = () => {
                     className="w-1/2"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Button className="w-full glow-effect">Sign Up</Button>
+                    <Button className="w-full cyber-button">Sign Up</Button>
                   </Link>
                 </motion.div>
               )}

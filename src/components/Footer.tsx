@@ -1,15 +1,35 @@
-
 import React from 'react';
 import Link from 'next/link';
-import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Cpu, Code, Globe } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Footer = () => {
   return (
-    <footer className="bg-secondary/50 py-12 mt-16">
-      <div className="container mx-auto px-6">
+    <footer className="bg-secondary/10 py-12 mt-16 relative overflow-hidden">
+      {/* Cyberpunk grid overlay */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: `linear-gradient(to right, oklch(0.7 0.28 265 / 0.03) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.7 0.28 265 / 0.03) 1px, transparent 1px)`,
+        backgroundSize: '30px 30px',
+        opacity: 0.4
+      }}></div>
+
+      {/* Diagonal lines */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className="h-full w-full"
+          style={{
+            backgroundImage: `linear-gradient(45deg, oklch(0.7 0.28 265 / 0.05) 25%, transparent 25%),
+                            linear-gradient(-45deg, oklch(0.7 0.28 265 / 0.05) 25%, transparent 25%)`,
+            backgroundSize: '160px 160px',
+            opacity: 0.2
+          }}
+        ></div>
+      </div>
+
+      <div className="container mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <h3 className="text-xl font-bold mb-4 cyber-gradient neon-text">
               Project Bazaar
             </h3>
             <p className="text-muted-foreground mb-4">
@@ -17,22 +37,25 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-foreground hover:text-primary transition-colors">
-                <Facebook size={20} />
+                <Facebook size={20} className="hover:neon-text" />
               </a>
               <a href="#" className="text-foreground hover:text-primary transition-colors">
-                <Twitter size={20} />
+                <Twitter size={20} className="hover:neon-text" />
               </a>
               <a href="#" className="text-foreground hover:text-primary transition-colors">
-                <Instagram size={20} />
+                <Instagram size={20} className="hover:neon-text" />
               </a>
               <a href="#" className="text-foreground hover:text-primary transition-colors">
-                <Linkedin size={20} />
+                <Linkedin size={20} className="hover:neon-text" />
               </a>
             </div>
           </div>
-          
+
           <div>
-            <h4 className="text-lg font-semibold mb-4">Categories</h4>
+            <h4 className="text-lg font-semibold mb-4 flex items-center">
+              <Cpu size={16} className="mr-2 text-primary" />
+              <span>Categories</span>
+            </h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/shop?category=Computer Science" className="text-muted-foreground hover:text-primary transition-colors">
@@ -51,9 +74,12 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           <div>
-            <h4 className="text-lg font-semibold mb-4">Customer Service</h4>
+            <h4 className="text-lg font-semibold mb-4 flex items-center">
+              <Code size={16} className="mr-2 text-primary" />
+              <span>Customer Service</span>
+            </h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
@@ -77,9 +103,12 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           <div>
-            <h4 className="text-lg font-semibold mb-4">Newsletter</h4>
+            <h4 className="text-lg font-semibold mb-4 flex items-center">
+              <Globe size={16} className="mr-2 text-primary" />
+              <span>Newsletter</span>
+            </h4>
             <p className="text-muted-foreground mb-4">
               Subscribe to our newsletter for the latest updates.
             </p>
@@ -87,22 +116,30 @@ const Footer = () => {
               <input
                 type="email"
                 placeholder="Your email"
-                className="px-4 py-2 rounded-l-md border border-border bg-background w-full"
-                required
+                className="px-4 py-2 rounded-l-md border border-r-0 border-border bg-background/50 w-full glass-effect"
               />
-              <button
-                type="submit"
-                className="bg-primary text-primary-foreground px-4 py-2 rounded-r-md hover:bg-accent transition-colors"
-                aria-label="Subscribe"
-              >
-                <Mail size={20} />
-              </button>
+              <Button type="submit" className="rounded-l-none cyber-button">
+                <Mail className="h-4 w-4" />
+              </Button>
             </form>
           </div>
         </div>
-        
-        <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Project Bazaar. All rights reserved.</p>
+
+        <div className="border-t border-border/30 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-muted-foreground text-sm mb-4 md:mb-0">
+            © {new Date().getFullYear()} Project Bazaar. All rights reserved.
+          </p>
+          <div className="flex space-x-4">
+            <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Terms
+            </Link>
+            <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Privacy
+            </Link>
+            <Link href="/cookies" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Cookies
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

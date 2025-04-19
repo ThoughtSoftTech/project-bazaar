@@ -2,7 +2,7 @@
 import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Cpu, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const HeroSection = () => {
@@ -44,16 +44,22 @@ const HeroSection = () => {
     return (
         <div
             ref={containerRef}
-            className="relative bg-gradient-to-b from-background to-secondary/20 pt-16 pb-4 sm:pb-24  overflow-hidden"
+            className="relative bg-gradient-to-b from-background via-background to-secondary/10 pt-16 pb-4 sm:pb-24 overflow-hidden scan-line"
         >
+            {/* Cyberpunk Grid Overlay */}
+            <div className="absolute inset-0 pointer-events-none" style={{
+                backgroundImage: `linear-gradient(to right, oklch(0.7 0.28 265 / 0.05) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.7 0.28 265 / 0.05) 1px, transparent 1px)`,
+                backgroundSize: '40px 40px',
+                opacity: 0.4
+            }}></div>
+
             {/* Floating geometric shapes */}
             <div
                 className="absolute inset-0 pointer-events-none overflow-hidden"
-                style={{ opacity: 0.5 }}
             >
                 {/* Circle */}
                 <motion.div
-                    className="absolute top-[10%] left-[15%] w-64 h-64 rounded-full bg-primary/5 parallax-element"
+                    className="absolute top-[10%] left-[15%] w-64 h-64 rounded-full bg-primary/10 border border-primary/20 parallax-element"
                     animate={{
                         y: [0, -15, 0],
                         rotate: [0, 5, 0],
@@ -69,7 +75,7 @@ const HeroSection = () => {
 
                 {/* Rectangle */}
                 <motion.div
-                    className="absolute bottom-[15%] right-[10%] w-48 h-32 rounded-lg bg-accent/5 parallax-element"
+                    className="absolute bottom-[15%] right-[10%] w-48 h-32 rounded-lg bg-accent/10 border border-accent/20 backdrop-blur-sm parallax-element"
                     animate={{
                         y: [0, 20, 0],
                         rotate: [0, -5, 0],
@@ -101,7 +107,7 @@ const HeroSection = () => {
                         }}
                     >
                         <div
-                            className="w-0 h-0 border-l-[75px] border-l-transparent border-b-[130px] border-b-primary/5 border-r-[75px] border-r-transparent"
+                            className="w-0 h-0 border-l-[75px] border-l-transparent border-b-[130px] border-b-primary/20 border-r-[75px] border-r-transparent"
                         />
                     </motion.div>
                 </div>
@@ -117,7 +123,7 @@ const HeroSection = () => {
                     return (
                         <motion.div
                             key={i}
-                            className="absolute rounded-full bg-primary/10 parallax-element"
+                            className="absolute rounded-full bg-primary/20 backdrop-blur-sm neon-border parallax-element"
                             style={{
                                 width: size,
                                 height: size,
@@ -149,11 +155,11 @@ const HeroSection = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.7, ease: "easeOut" }}
                 >
-                    <div className="inline-block px-3 py-1 mb-6 text-sm font-medium bg-primary/10 text-primary rounded-full">
-                        Elevate your tech portfolio with quality projects
+                    <div className="inline-block px-3 py-1 mb-6 text-sm font-medium bg-primary/20 border border-primary/30 text-primary rounded-full">
+                        <span className="flex items-center gap-2"><Cpu size={14} className="animate-pulse" /> Next-Gen Tech Projects</span>
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 cyber-gradient neon-text">
                         Find the Perfect Tech Projects For Your Portfolio
                     </h1>
 
@@ -166,7 +172,7 @@ const HeroSection = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            <Button size="lg" className="font-medium">
+                            <Button size="lg" className="font-medium cyber-button">
                                 <Link href="/shop" className="flex items-center">
                                     Browse Projects
                                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -178,7 +184,7 @@ const HeroSection = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            <Button size="lg" variant="outline" className="font-medium">
+                            <Button size="lg" variant="outline" className="font-medium glass-effect">
                                 <Link href="/custom">Request Custom Project</Link>
                             </Button>
                         </motion.div>
@@ -196,7 +202,7 @@ const HeroSection = () => {
                         {/* Main card with perspective effect */}
                         <div className="relative w-full aspect-square max-w-md mx-auto">
                             <motion.div
-                                className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 p-1 shadow-xl"
+                                className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 p-1 shadow-xl neon-border"
                                 style={{
                                     transformStyle: 'preserve-3d',
                                     perspective: '1000px'
@@ -211,27 +217,20 @@ const HeroSection = () => {
                                     ease: "easeInOut"
                                 }}
                             >
-                                <div className="bg-card dark:bg-card/90 h-full w-full rounded-lg flex items-center justify-center p-8 overflow-hidden">
+                                <div className="bg-card dark:bg-card/90 h-full w-full rounded-lg flex items-center justify-center p-8 overflow-hidden glass-card">
                                     {/* Project showcase mockup */}
                                     <div className="relative w-full">
-                                        <div className="rounded-lg overflow-hidden shadow-lg border border-border">
+                                        <div className="rounded-lg overflow-hidden shadow-lg border border-primary/30 cyber-gradient-border">
                                             <img
                                                 src="/project.png"
                                                 alt="Project"
                                                 className="w-full h-auto object-cover"
                                             />
-                                            {/* <div className="p-4 bg-background/80 backdrop-blur-sm">
-                                                <h3 className="font-medium">Web Application Project</h3>
-                                                <div className="flex items-center justify-between mt-2">
-                                                    <span className="text-sm text-muted-foreground">Web Development</span>
-                                                    <span className="font-semibold">Rs 2,499</span>
-                                                </div>
-                                            </div> */}
                                         </div>
 
                                         {/* Floating tech icons */}
                                         <motion.div
-                                            className="absolute -top-5 -right-5 bg-primary/90 w-12 h-12 rounded-full flex items-center justify-center text-white parallax-element"
+                                            className="absolute -top-5 -right-5 bg-primary w-12 h-12 rounded-full flex items-center justify-center text-white parallax-element neon-border"
                                             animate={{
                                                 y: [0, -10, 0],
                                                 rotate: [0, 10, 0]
@@ -250,7 +249,7 @@ const HeroSection = () => {
                                         </motion.div>
 
                                         <motion.div
-                                            className="absolute -bottom-5 -left-5 bg-accent/90 w-14 h-14 rounded-full flex items-center justify-center parallax-element"
+                                            className="absolute -bottom-5 -left-5 bg-accent w-14 h-14 rounded-full flex items-center justify-center parallax-element neon-border"
                                             animate={{
                                                 y: [0, 10, 0],
                                                 rotate: [0, -10, 0]
