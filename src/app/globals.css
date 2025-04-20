@@ -341,6 +341,7 @@
     background: rgba(var(--background), 0.3);
     position: relative;
     overflow: hidden;
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
   }
 
