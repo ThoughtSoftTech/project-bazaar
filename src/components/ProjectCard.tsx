@@ -1,27 +1,25 @@
 "use client";
 import React, { memo, useCallback, useState } from 'react';
 import Link from 'next/link';
-import { Star, ShoppingCart, ArrowRight, Check } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Star, ShoppingCart, ArrowRight, Check, Eye, Download } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { Project } from '@/data/projects';
-import Card3D from '@/components/ui/card3d';
+import { cn } from '@/lib/utils';
 
 interface ProjectCardProps {
   project: Project;
   featured?: boolean;
-  index?: number; // For staggered animations
+  index?: number;
 }
 
 const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardProps) => {
   const { addToCart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
 
-  // Memoize the handleAddToCart function
   const handleAddToCart = useCallback(() => {
-    console.log(`Adding project to cart: ${project.id}`);
     addToCart({
       id: project.id,
       title: project.title,
@@ -30,135 +28,109 @@ const ProjectCard = memo(({ project, featured = false, index = 0 }: ProjectCardP
       image: project.image
     });
     setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000); // Reset after 2 seconds
+    setTimeout(() => setIsAdded(false), 2000);
   }, [addToCart, project]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
       className="h-full"
     >
-      <Card3D className="h-full bg-gradient-to-br from-background via-background to-secondary/5 border border-border group">
-        <div className="flex flex-col h-full">
-          {/* Image Section */}
-          <div className="relative overflow-hidden rounded-t-lg">
-            <motion.img
+      <div className="h-full flex flex-col card-minimal overflow-hidden">
+        {/* Image */}
+        <div className="relative overflow-hidden">
+          <div className="img-hover">
+            <img
               src={project.image}
               alt={project.title}
-              className="w-full h-full object-cover"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
+              className="w-full aspect-[4/3] object-cover"
             />
-            {/* Glass overlay with subcategory */}
-            <div className="absolute bottom-0 left-0 right-0 bg-black/30 backdrop-blur-sm p-2 flex justify-between items-center">
-              <Badge variant="outline" className="bg-background/50 backdrop-blur-sm border-primary/20 border">
-                {project.subcategory}
-              </Badge>
-              {project.rating && (
-                <div className="flex items-center text-white">
-                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400 mr-1" />
-                  <span className="text-xs font-medium">{project.rating}</span>
-                </div>
-              )}
-            </div>
-            {featured && (
-              <Badge className="absolute top-2 right-2 bg-primary/90 backdrop-blur-sm shadow-lg neon-border">
-                Featured
-              </Badge>
-            )}
-
-            {/* Cyberpunk overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
 
-          {/* Content Section */}
-          <div className="p-4 flex flex-col flex-grow">
-            {/* Title */}
-            <h3 className="font-semibold text-lg line-clamp-1 mb-2 group-hover:text-primary transition-colors">
-              {project.title}
-            </h3>
+          {/* Price tag */}
+          <div className="absolute top-3 right-3 bg-background/90 px-2.5 py-1 rounded-md text-sm font-medium shadow-sm">
+            ₹{project.price.toFixed(0)}
+          </div>
 
-            {/* Description */}
-            <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-              {project.description}
-            </p>
+          {/* Featured badge */}
+          {featured && (
+            <div className="absolute top-3 left-3 bg-accent/90 text-white text-xs px-2 py-1 rounded-md">
+              Featured
+            </div>
+          )}
+        </div>
 
-            {/* Price and Downloads */}
-            <div className="flex justify-between items-center mb-4 mt-auto">
-              <div className="text-sm text-muted-foreground">
-                {project.downloads} downloads
+        {/* Content */}
+        <div className="p-4 flex flex-col flex-grow">
+          <div className="flex justify-between items-start gap-2 mb-2">
+            <Badge variant="outline" className="text-xs bg-background">
+              {project.category}
+            </Badge>
+
+            {project.rating && (
+              <div className="flex items-center">
+                <Star className="h-3.5 w-3.5 fill-primary text-primary mr-1" />
+                <span className="text-xs">{project.rating}</span>
               </div>
-              <motion.span
-                className="font-bold text-lg cyber-gradient"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                ₹{project.price.toFixed(2)}
-              </motion.span>
+            )}
+          </div>
+
+          <h3 className="font-medium text-base mb-2 line-clamp-1">
+            {project.title}
+          </h3>
+
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-grow">
+            {project.description}
+          </p>
+
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+            <div className="flex items-center gap-1">
+              <Download className="h-3.5 w-3.5" />
+              <span>{project.downloads} downloads</span>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 group glass-effect backdrop-blur-sm"
-                asChild
-              >
-                <Link href={`/projectdetails/${project.id}`}>
-                  <span className="flex items-center">
-                    View Details
-                    <motion.span
-                      initial={{ x: 0 }}
-                      whileHover={{ x: 3 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:text-primary transition-colors" />
-                    </motion.span>
-                  </span>
-                </Link>
-              </Button>
-              <motion.button
-                type="button"
-                className={`flex-1 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none h-9 px-4 py-2 whitespace-nowrap overflow-hidden ${isAdded ? 'bg-blue-900 text-white border-blue-900' : 'cyber-button'}`}
-                onClick={handleAddToCart}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                disabled={isAdded}
-              >
-                <AnimatePresence mode="wait">
-                  {isAdded ? (
-                    <motion.span
-                      key="added"
-                      className="flex items-center"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Check className="h-4 w-4 mr-1" /> Added
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="add"
-                      className="flex items-center"
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-1" /> Add to cart
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            </div>
+            <span className="text-xs">
+              {project.difficulty || "Beginner"}
+            </span>
+          </div>
+
+          <div className="flex gap-2 mt-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 text-xs h-8 border-border hover:border-primary hover:text-primary hover:bg-transparent"
+              asChild
+            >
+              <Link href={`/projectdetails/${project.id}`}>
+                Details
+              </Link>
+            </Button>
+
+            <Button
+              size="sm"
+              className={cn(
+                "flex-1 text-xs h-8",
+                isAdded ? "bg-accent hover:bg-accent/90" : "bg-primary hover:bg-primary/90"
+              )}
+              onClick={handleAddToCart}
+              disabled={isAdded}
+            >
+              {isAdded ? (
+                <span className="flex items-center">
+                  <Check className="h-3.5 w-3.5 mr-1" /> Added
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <ShoppingCart className="h-3.5 w-3.5 mr-1" /> Add to cart
+                </span>
+              )}
+            </Button>
           </div>
         </div>
-      </Card3D>
+      </div>
     </motion.div>
   );
 });

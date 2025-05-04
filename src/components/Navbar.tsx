@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, ShoppingCart, Sun, Moon, User, LogOut } from 'lucide-react';
+import { Menu, X, ShoppingCart, Sun, Moon, User, LogOut, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -15,13 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  navigationMenuTriggerStyle
-} from "@/components/ui/navigation-menu";
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
@@ -29,6 +22,7 @@ const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Handle scroll effect
   useEffect(() => {
@@ -40,223 +34,145 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Animation variants
-  const navbarVariants = {
-    top: {
-      backgroundColor: "rgba(var(--background-rgb), 0.5)",
-      backdropFilter: "blur(5px)",
-      borderBottom: "1px solid rgba(var(--border-rgb), 0.1)",
-      boxShadow: "0 0 0 rgba(0, 0, 0, 0)"
-    },
-    scrolled: {
-      backgroundColor: "rgba(var(--background-rgb), 0.8)",
-      backdropFilter: "blur(10px)",
-      borderBottom: "1px solid rgba(var(--border-rgb), 0.2)",
-      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)"
-    }
-  };
-
-  // Link animation on hover
-  const linkHover = {
-    scale: 1.05,
-    y: -2,
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 10
+  // Handle search submit
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      window.location.href = `/shop?search=${encodeURIComponent(searchQuery)}`;
     }
   };
 
   return (
-    <motion.nav
-      className={`sticky top-0 z-50 transition-all duration-300 px-6 py-4 ${scrolled ? 'py-2' : 'py-4'} scan-line`}
-      variants={navbarVariants}
-      initial="top"
-      animate={scrolled ? "scrolled" : "top"}
-      transition={{ duration: 0.3 }}
+    <header
+      className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? 'py-3' : 'py-4'}`}
       style={{
-        background: scrolled ? 'rgba(30, 30, 60, 0.8)' : 'rgba(30, 30, 60, 0.4)',
+        backgroundColor: 'rgba(var(--background), 0.97)',
+        backdropFilter: 'blur(5px)',
+        borderBottom: scrolled ? '1px solid var(--border)' : 'none',
       }}
     >
-      <div className="container mx-auto flex justify-between items-center">
-        <Link href="/">
-          <motion.div
-            className="flex items-center space-x-2 overflow-hidden"
-            whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <span className="text-2xl font-bold cyber-gradient">
-              Project Bazaar
-            </span>
-          </motion.div>
+      <div className="content-container flex justify-between items-center">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2">
+          <span className="text-base font-medium">Project Bazaar</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-6">
-          <NavigationMenu>
-            <NavigationMenuList>
-              {["Home", "Shop", "Custom Project"].map((item, i) => (
-                <NavigationMenuItem key={i}>
-                  <NavigationMenuLink
-                    className={navigationMenuTriggerStyle() + " relative overflow-hidden group"}
-                    asChild
-                  >
-                    <Link href={i === 0 ? "/" : i === 1 ? "/shop" : "/custom"}>
-                      <motion.span whileHover={linkHover} className="relative">
-                        {item}
-                        <motion.span
-                          className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full transform scale-x-0 origin-left"
-                          initial={{ scaleX: 0 }}
-                          whileHover={{ scaleX: 1 }}
-                          transition={{ duration: 0.3 }}
-                        />
-                      </motion.span>
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
+        <nav className="hidden md:flex items-center gap-8">
+          <Link href="/" className="text-sm hover:text-primary transition-colors">
+            Home
+          </Link>
+          <Link href="/shop" className="text-sm hover:text-primary transition-colors">
+            Projects
+          </Link>
+          <Link href="/custom" className="text-sm hover:text-primary transition-colors">
+            Custom
+          </Link>
+          <Link href="/orders" className="text-sm hover:text-primary transition-colors">
+            Orders
+          </Link>
+        </nav>
 
-        <div className="hidden md:flex items-center space-x-4">
-          <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.5 }}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full glass-effect"
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-            >
-              {theme === 'light' ? (
-                <Moon className="h-5 w-5" />
-              ) : (
-                <Sun className="h-5 w-5" />
+        {/* Actions */}
+        <div className="flex items-center gap-1">
+          {/* Search - Desktop */}
+          <div className="relative hidden md:block">
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-[180px] h-8 rounded-full border border-border bg-background px-8 py-0 text-sm
+                focus:outline-none focus:border-primary transition-all"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               )}
-            </Button>
-          </motion.div>
+            </form>
+          </div>
 
-          <Link href="/cart" className="relative">
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="ghost" size="icon" className="rounded-full glass-effect">
-                <ShoppingCart className="h-5 w-5" />
-                <AnimatePresence>
-                  {cartCount > 0 && (
-                    <motion.span
-                      className="absolute -top-1 -right-1 bg-cart-bubble text-white text-xs rounded-full h-7 w-7 flex items-center justify-center neon-border"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                    >
-                      {cartCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Button>
-            </motion.div>
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full text-foreground hover:bg-muted transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? (
+              <Moon className="h-4 w-4" />
+            ) : (
+              <Sun className="h-4 w-4" />
+            )}
+          </button>
+
+          {/* Cart */}
+          <Link href="/cart">
+            <div className="p-2 rounded-full hover:bg-muted transition-colors relative">
+              <ShoppingCart className="h-4 w-4" />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-accent text-xs h-4 w-4 rounded-full flex items-center justify-center text-white font-medium">
+                  {cartCount}
+                </span>
+              )}
+            </div>
           </Link>
 
-          {/* Conditional rendering based on authentication status */}
+          {/* User Menu */}
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button variant="outline" size="sm" className="gap-2 glass-effect">
-                    <User className="h-4 w-4" />
-                    {user?.name?.split(' ')[0]}
-                  </Button>
-                </motion.div>
+                <button className="p-2 rounded-full hover:bg-muted transition-colors">
+                  <User className="h-4 w-4" />
+                </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="glass-effect border border-border/30 backdrop-blur-lg">
-                <DropdownMenuLabel className="cyber-gradient font-bold">My Account</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-48 mt-1">
+                <DropdownMenuLabel className="font-normal text-xs">
+                  <p className="text-sm font-medium">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email}</p>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/profile" className="hover:text-primary transition-colors">Profile</Link>
+                  <Link href="/profile" className="cursor-pointer text-sm">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/orders" className="hover:text-primary transition-colors">My Orders</Link>
+                  <Link href="/orders" className="cursor-pointer text-sm">Orders</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-500" onClick={logout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer text-sm">
+                  Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center">
               <Link href="/login">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button variant="outline" size="sm" className="glass-effect">
-                    Login
-                  </Button>
-                </motion.div>
+                <button className="text-sm px-3 py-1.5 rounded-md hover:bg-muted transition-colors">
+                  Log in
+                </button>
               </Link>
-
-              <Link href="/signup">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button size="sm" className="cyber-button">Sign Up</Button>
-                </motion.div>
+              <Link href="/signup" className="hidden sm:block">
+                <button className="text-sm px-3 py-1.5 ml-1 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity">
+                  Sign up
+                </button>
               </Link>
             </div>
           )}
-        </div>
 
-        {/* Mobile Navigation Toggle */}
-        <div className="flex md:hidden items-center space-x-2">
-          <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.5 }}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full"
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-            >
-              {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-            </Button>
-          </motion.div>
-
-          <Link href="/cart" className="relative">
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Button variant="ghost" size="icon" className="rounded-full glass-effect">
-                <ShoppingCart className="h-5 w-5" />
-                <AnimatePresence>
-                  {cartCount > 0 && (
-                    <motion.span
-                      className="absolute -top-1 -right-1 bg-cart-bubble text-white text-xs rounded-full h-5 w-5 flex items-center justify-center neon-border"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                    >
-                      {cartCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Button>
-            </motion.div>
-          </Link>
-
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={isMenuOpen ? 'close' : 'open'}
-                  initial={{ opacity: 0, rotate: -90 }}
-                  animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: 90 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </motion.div>
-              </AnimatePresence>
-            </Button>
-          </motion.div>
+          {/* Mobile Menu Toggle */}
+          <button
+            className="p-2 rounded-full md:hidden hover:bg-muted transition-colors"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
@@ -264,88 +180,111 @@ const Navbar = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            className="md:hidden absolute top-full left-0 right-0 bg-background/90 backdrop-blur-lg border-b p-4 glass-card"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed inset-0 bg-background z-50 md:hidden"
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ duration: 0.2 }}
           >
-            <motion.div
-              className="flex flex-col space-y-3 staggered-fade-in"
-            >
-              {["Home", "Browse Projects", "Custom Project"].map((item, i) => (
-                <Link
-                  key={i}
-                  href={i === 0 ? "/" : i === 1 ? "/shop" : "/custom"}
-                  className="text-foreground hover:text-primary transition-all py-2 hover:pl-2"
+            <div className="h-full flex flex-col">
+              <div className="flex justify-between items-center p-4 border-b border-border">
+                <span className="text-base font-medium">Menu</span>
+                <button
+                  className="p-2 rounded-full hover:bg-muted transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <motion.span
-                    className="block"
-                    whileHover={{ x: 5 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    {item}
-                  </motion.span>
-                </Link>
-              ))}
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
 
-              {/* Conditional rendering for mobile menu */}
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    href="/profile"
-                    className="text-foreground hover:text-primary transition-all py-2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <motion.span whileHover={{ x: 5 }}>Profile</motion.span>
-                  </Link>
-                  <Link
-                    href="/orders"
-                    className="text-foreground hover:text-primary transition-all py-2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <motion.span whileHover={{ x: 5 }}>My Orders</motion.span>
-                  </Link>
-                  <button
-                    onClick={() => {
-                      logout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center text-red-500 hover:text-red-600 transition-all py-2 text-left"
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    <motion.span whileHover={{ x: 5 }}>Logout</motion.span>
-                  </button>
-                </>
-              ) : (
-                <motion.div
-                  className="flex space-x-2 pt-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
+              <div className="p-4">
+                <form onSubmit={handleSearchSubmit} className="relative mb-6">
+                  <input
+                    type="text"
+                    placeholder="Search projects..."
+                    className="w-full h-9 rounded-md border border-border bg-background px-9 py-2 text-sm
+                    focus:outline-none focus:border-primary"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    >
+                      <X className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                  )}
+                </form>
+
+                <nav className="flex flex-col space-y-1">
+                  {[
+                    { name: "Home", path: "/" },
+                    { name: "Projects", path: "/shop" },
+                    { name: "Custom", path: "/custom" },
+                    { name: "Orders", path: "/orders" }
+                  ].map((link, i) => (
+                    <Link
+                      key={i}
+                      href={link.path}
+                      className="py-2.5 px-2 rounded-md hover:bg-muted transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </nav>
+
+                {!isAuthenticated && (
+                  <div className="mt-6 pt-6 border-t border-border grid grid-cols-2 gap-2">
+                    <Link
+                      href="/login"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <button className="w-full text-sm px-3 py-2 border border-border rounded-md hover:border-primary hover:text-primary transition-colors">
+                        Log in
+                      </button>
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <button className="w-full text-sm px-3 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity">
+                        Sign up
+                      </button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-auto p-4 border-t border-border flex justify-between items-center">
+                <button
+                  onClick={() => {
+                    toggleTheme();
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-sm flex items-center gap-2"
                 >
-                  <Link
-                    href="/login"
-                    className="w-1/2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Button variant="outline" className="w-full glass-effect">Login</Button>
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="w-1/2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Button className="w-full cyber-button">Sign Up</Button>
-                  </Link>
-                </motion.div>
-              )}
-            </motion.div>
+                  {theme === 'light' ? (
+                    <>
+                      <Moon className="h-4 w-4" />
+                      <span>Dark mode</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sun className="h-4 w-4" />
+                      <span>Light mode</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </header>
   );
 };
 

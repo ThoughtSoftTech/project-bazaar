@@ -1,280 +1,118 @@
 "use client";
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Cpu, Zap } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const HeroSection = () => {
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    // Handle mouse movement effect
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (!containerRef.current) return;
-
-            const { clientX, clientY } = e;
-            const { innerWidth, innerHeight } = window;
-
-            // Calculate mouse position as a percentage of the window
-            const x = clientX / innerWidth;
-            const y = clientY / innerHeight;
-
-            // Apply a subtle parallax effect to different elements
-            const elements = containerRef.current.querySelectorAll('.parallax-element');
-            elements.forEach((el: Element) => {
-                const htmlEl = el as HTMLElement;
-                const speedX = parseFloat(htmlEl.dataset.speedX || '0');
-                const speedY = parseFloat(htmlEl.dataset.speedY || '0');
-
-                const moveX = (x - 0.5) * speedX;
-                const moveY = (y - 0.5) * speedY;
-
-                htmlEl.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            });
-        };
-
-        window.addEventListener('mousemove', handleMouseMove);
-
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-        };
-    }, []);
-
     return (
-        <div
-            ref={containerRef}
-            className="relative bg-gradient-to-b from-background via-background to-secondary/10 pt-16 pb-4 sm:pb-24 overflow-hidden scan-line"
-        >
-            {/* Cyberpunk Grid Overlay */}
-            <div className="absolute inset-0 pointer-events-none" style={{
-                backgroundImage: `linear-gradient(to right, oklch(0.7 0.28 265 / 0.05) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.7 0.28 265 / 0.05) 1px, transparent 1px)`,
-                backgroundSize: '40px 40px',
-                opacity: 0.4
-            }}></div>
+        <section className="pt-16 pb-20 overflow-hidden">
+            <div className="content-container relative">
+                {/* Minimal background accents */}
+                <div className="absolute top-20 right-10 w-64 h-64 rounded-full bg-primary/5 blur-3xl -z-10" />
+                <div className="absolute bottom-10 left-10 w-72 h-72 rounded-full bg-accent/5 blur-3xl -z-10" />
 
-            {/* Floating geometric shapes */}
-            <div
-                className="absolute inset-0 pointer-events-none overflow-hidden"
-            >
-                {/* Circle */}
-                <motion.div
-                    className="absolute top-[10%] left-[15%] w-64 h-64 rounded-full bg-primary/10 border border-primary/20 parallax-element"
-                    animate={{
-                        y: [0, -15, 0],
-                        rotate: [0, 5, 0],
-                    }}
-                    transition={{
-                        duration: 8,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
-                    data-speed-x="20"
-                    data-speed-y="10"
-                />
-
-                {/* Rectangle */}
-                <motion.div
-                    className="absolute bottom-[15%] right-[10%] w-48 h-32 rounded-lg bg-accent/10 border border-accent/20 backdrop-blur-sm parallax-element"
-                    animate={{
-                        y: [0, 20, 0],
-                        rotate: [0, -5, 0],
-                    }}
-                    transition={{
-                        duration: 10,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 0.5
-                    }}
-                    data-speed-x="-15"
-                    data-speed-y="-20"
-                />
-
-                {/* Triangle */}
-                <div
-                    className="absolute top-[30%] right-[20%] parallax-element"
-                    data-speed-x="-30"
-                    data-speed-y="30"
-                >
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                    {/* Text content */}
                     <motion.div
-                        animate={{
-                            rotate: [0, 360],
-                        }}
-                        transition={{
-                            duration: 40,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="text-center lg:text-left"
                     >
-                        <div
-                            className="w-0 h-0 border-l-[75px] border-l-transparent border-b-[130px] border-b-primary/20 border-r-[75px] border-r-transparent"
-                        />
-                    </motion.div>
-                </div>
+                        <span className="inline-block px-3 py-1 mb-6 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                            Tech Projects Marketplace
+                        </span>
 
-                {/* Small floating dots */}
-                {[...Array(15)].map((_, i) => {
-                    const size = Math.random() * 10 + 5;
-                    const left = `${Math.random() * 100}%`;
-                    const top = `${Math.random() * 100}%`;
-                    const duration = Math.random() * 10 + 15;
-                    const delay = Math.random() * 5;
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium mb-6 leading-tight">
+                            Find the Perfect Tech Projects For Your Portfolio
+                        </h1>
 
-                    return (
-                        <motion.div
-                            key={i}
-                            className="absolute rounded-full bg-primary/20 backdrop-blur-sm neon-border parallax-element"
-                            style={{
-                                width: size,
-                                height: size,
-                                left,
-                                top,
-                            }}
-                            animate={{
-                                y: [0, -30, 0],
-                                opacity: [0.3, 0.8, 0.3]
-                            }}
-                            transition={{
-                                duration,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                                delay
-                            }}
-                            data-speed-x={(Math.random() * 40 - 20).toString()}
-                            data-speed-y={(Math.random() * 40 - 20).toString()}
-                        />
-                    );
-                })}
-            </div>
+                        <p className="text-muted-foreground text-base mb-8 max-w-lg mx-auto lg:mx-0">
+                            Browse our collection of high-quality tech projects designed to enhance your portfolio and showcase your skills to potential employers.
+                        </p>
 
-            <div className="container mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center">
-                {/* Text content */}
-                <motion.div
-                    className="lg:w-1/2 text-center lg:text-left mb-16 lg:mb-0"
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.7, ease: "easeOut" }}
-                >
-                    <div className="inline-block px-3 py-1 mb-6 text-sm font-medium bg-primary/20 border border-primary/30 text-primary rounded-full">
-                        <span className="flex items-center gap-2"><Cpu size={14} className="animate-pulse" /> Next-Gen Tech Projects</span>
-                    </div>
-
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 cyber-gradient neon-text">
-                        Find the Perfect Tech Projects For Your Portfolio
-                    </h1>
-
-                    <p className="text-muted-foreground text-lg mb-8 max-w-lg mx-auto lg:mx-0">
-                        Browse our curated collection of high-quality tech projects designed to enhance your portfolio and showcase your skills to potential employers.
-                    </p>
-
-                    <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Button size="lg" className="font-medium cyber-button">
-                                <Link href="/shop" className="flex items-center">
+                        <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                            <Link href="/shop">
+                                <Button className="px-6">
                                     Browse Projects
                                     <ArrowRight className="ml-2 h-4 w-4" />
-                                </Link>
-                            </Button>
-                        </motion.div>
+                                </Button>
+                            </Link>
 
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Button size="lg" variant="outline" className="font-medium glass-effect">
-                                <Link href="/custom">Request Custom Project</Link>
-                            </Button>
-                        </motion.div>
-                    </div>
-                </motion.div>
-
-                {/* 3D Illustration/Card */}
-                <motion.div
-                    className="lg:w-1/2"
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
-                >
-                    <div className="relative w-[600px] max-w-lg mx-auto hidden sm:block">
-                        {/* Main card with perspective effect */}
-                        <div className="relative w-full aspect-square max-w-md mx-auto">
-                            <motion.div
-                                className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 p-1 shadow-xl neon-border"
-                                style={{
-                                    transformStyle: 'preserve-3d',
-                                    perspective: '1000px'
-                                }}
-                                animate={{
-                                    rotateY: [0, 10, 0, -10, 0],
-                                    rotateX: [0, -10, 0, 10, 0],
-                                }}
-                                transition={{
-                                    duration: 20,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                            >
-                                <div className="bg-card dark:bg-card/90 h-full w-full rounded-lg flex items-center justify-center p-8 overflow-hidden glass-card">
-                                    {/* Project showcase mockup */}
-                                    <div className="relative w-full">
-                                        <div className="rounded-lg overflow-hidden shadow-lg border border-primary/30 cyber-gradient-border">
-                                            <img
-                                                src="/project.png"
-                                                alt="Project"
-                                                className="w-full h-auto object-cover"
-                                            />
-                                        </div>
-
-                                        {/* Floating tech icons */}
-                                        <motion.div
-                                            className="absolute -top-5 -right-5 bg-primary w-12 h-12 rounded-full flex items-center justify-center text-white parallax-element neon-border"
-                                            animate={{
-                                                y: [0, -10, 0],
-                                                rotate: [0, 10, 0]
-                                            }}
-                                            transition={{
-                                                duration: 5,
-                                                repeat: Infinity,
-                                                ease: "easeInOut"
-                                            }}
-                                            data-speed-x="40"
-                                            data-speed-y="20"
-                                        >
-                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                                <path d="M12 18.1387L4.4812 13.5557V4.38965L12 9.00242L19.5188 4.38965V13.5557L12 18.1387Z" stroke="currentColor" strokeWidth="2" />
-                                            </svg>
-                                        </motion.div>
-
-                                        <motion.div
-                                            className="absolute -bottom-5 -left-5 bg-accent w-14 h-14 rounded-full flex items-center justify-center parallax-element neon-border"
-                                            animate={{
-                                                y: [0, 10, 0],
-                                                rotate: [0, -10, 0]
-                                            }}
-                                            transition={{
-                                                duration: 7,
-                                                repeat: Infinity,
-                                                ease: "easeInOut",
-                                                delay: 1
-                                            }}
-                                            data-speed-x="-30"
-                                            data-speed-y="-25"
-                                        >
-                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
-                                                <path d="M20 4L13.5 6.5M20 4L14.5 11M20 4L3 16M3 16L9.5 8.5M3 16L9.5 19.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                        </motion.div>
-                                    </div>
-                                </div>
-                            </motion.div>
+                            <Link href="/custom">
+                                <Button variant="outline" className="px-6">
+                                    Request Custom Project
+                                </Button>
+                            </Link>
                         </div>
-                    </div>
-                </motion.div>
+
+                        {/* Category chips */}
+                        <div className="mt-8 flex flex-wrap gap-2 justify-center lg:justify-start">
+                            {[
+                                "AI Projects",
+                                "Web Development",
+                                "Mobile Apps",
+                                "Electronics",
+                                "Data Science"
+                            ].map((category, index) => (
+                                <Link
+                                    key={index}
+                                    href={`/shop?category=${encodeURIComponent(category)}`}
+                                    className="text-xs px-3 py-1 rounded-full bg-background border border-border hover:border-primary transition-colors"
+                                >
+                                    {category}
+                                </Link>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Image */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="lg:pl-10"
+                    >
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background z-10" />
+
+                            <div className="relative overflow-hidden rounded-lg border border-border card-minimal">
+                                <img
+                                    src="/project.png"
+                                    alt="Tech Project Showcase"
+                                    className="w-full h-auto object-cover"
+                                />
+
+                                {/* Overlay elements */}
+                                <div className="absolute top-3 left-3 bg-background/90 px-2 py-1 rounded-md text-xs font-medium border border-border shadow-sm z-20">
+                                    Featured Project
+                                </div>
+
+                                <div className="absolute top-3 right-3 bg-background/90 px-2 py-1 rounded-md text-xs font-medium border border-border shadow-sm z-20">
+                                    ₹1,299
+                                </div>
+
+                                <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border p-4 z-20">
+                                    <h3 className="text-sm font-medium mb-1">AI-Powered Image Recognition System</h3>
+                                    <p className="text-xs text-muted-foreground">Complete with source code and documentation</p>
+                                </div>
+                            </div>
+
+                            {/* Floating feature tags */}
+                            <div className="absolute -right-3 top-1/4 bg-background px-3 py-1.5 rounded-md text-xs border border-border shadow-sm">
+                                Source Code Included
+                            </div>
+
+                            <div className="absolute -left-3 bottom-1/4 bg-background px-3 py-1.5 rounded-md text-xs border border-border shadow-sm">
+                                Lifetime Updates
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
             </div>
-        </div>
+        </section>
     );
 };
 
