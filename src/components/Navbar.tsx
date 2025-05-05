@@ -54,6 +54,12 @@ const Navbar = () => {
       <div className="content-container flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="h-8 w-8 rounded-full border border-border"
+            style={{ filter: scrolled ? 'brightness(0.8)' : 'none' }}
+          />
           <span className="text-base font-medium">Project Bazaar</span>
         </Link>
 
