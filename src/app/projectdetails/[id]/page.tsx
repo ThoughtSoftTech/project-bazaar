@@ -142,11 +142,11 @@ const ProjectDetail = () => {
                         >
                             {isAdded ? (
                                 <>
-                                    <Check className="h-5 w-5 mr-2" /> Added to Cart
+                                    <Check className="h-5 py-5 w-5 mr-2" /> Added to Cart
                                 </>
                             ) : (
                                 <>
-                                    <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
+                                        <ShoppingCart className="h-5 py-5 w-5 mr-2" /> Add to Cart
                                 </>
                             )}
                         </Button>
@@ -159,7 +159,7 @@ const ProjectDetail = () => {
                                 asChild
                             >
                                 <Link href="/cart">
-                                    <ShoppingCart className="h-5 w-5 mr-2" /> View Cart
+                                    <ShoppingCart className="h-5 py-5 w-5 mr-2" /> View Cart
                                 </Link>
                             </Button>
                         )}
