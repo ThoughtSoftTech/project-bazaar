@@ -138,9 +138,15 @@ const Navbar = () => {
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="cursor-pointer text-sm">Profile</Link>
-                </DropdownMenuItem>
+                {user?.isAdmin ? (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/dashboard" className="cursor-pointer text-sm">Dashboard</Link>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="cursor-pointer text-sm">Profile</Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link href="/orders" className="cursor-pointer text-sm">Orders</Link>
                 </DropdownMenuItem>
