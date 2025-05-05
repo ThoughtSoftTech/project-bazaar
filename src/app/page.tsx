@@ -378,7 +378,7 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <ParallaxSection direction="up" speed={0.1}>
             <motion.div
-              className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-8 md:p-12 glass-effect"
+              className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-8 md:p-12 glass-effect dark:bg-background"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
@@ -487,7 +487,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <Card3D
-                  className="bg-card border border-border rounded-lg overflow-hidden glass-effect"
+                  className="bg-card border border-border rounded-lg overflow-hidden glass-effect dark:bg-background"
                   intensity={10}
                 >
                   <details className="group">

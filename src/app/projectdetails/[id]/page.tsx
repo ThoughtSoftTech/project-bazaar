@@ -1,8 +1,8 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, ShoppingCart, Star, Shield, DownloadCloud, Clock, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Star, Shield, DownloadCloud, Clock, CheckCircle, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -13,11 +13,22 @@ import ProjectCard from '@/components/ProjectCard';
 
 const ProjectDetail = () => {
     const { id } = useParams<{ id: string }>();
-    const { addToCart } = useCart();
+    const { addToCart, cartItems } = useCart();
+    const [isAdded, setIsAdded] = useState(false);
 
     // Get project details - decode the URL parameter to handle special characters
     const decodedId = typeof id === 'string' ? decodeURIComponent(id) : '';
     const project = getProjectById(decodedId);
+
+    // Check if the item is already in the cart
+    useEffect(() => {
+        if (project && cartItems) {
+            const existingItem = cartItems.find((item: { id: string }) => item.id === project.id);
+            if (existingItem) {
+                setIsAdded(true);
+            }
+        }
+    }, [cartItems, project]);
 
     if (!project) {
         return (
@@ -47,6 +58,7 @@ const ProjectDetail = () => {
             subcategory: project.subcategory,
             image: project.image
         });
+        setIsAdded(true);
     };
 
     return (
@@ -124,22 +136,33 @@ const ProjectDetail = () => {
                     <div className="flex flex-col sm:flex-row gap-4 pt-4">
                         <Button
                             size="lg"
-                            className="flex-1"
+                            className={`flex-1 ${isAdded ? 'bg-accent hover:bg-accent' : ''}`}
                             onClick={handleAddToCart}
+                            disabled={isAdded}
                         >
-                            <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
+                            {isAdded ? (
+                                <>
+                                    <Check className="h-5 w-5 mr-2" /> Added to Cart
+                                </>
+                            ) : (
+                                <>
+                                    <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
+                                </>
+                            )}
                         </Button>
 
-                        {/* <Button 
-                            variant="outline" 
-                            size="lg"
-                            className="flex-1"
-                            asChild
-                        >
-                            <Link href={`/contact?about=${encodeURIComponent(project.title)}`}>
-                                Request Custom Changes
-                            </Link>
-                        </Button> */}
+                        {isAdded && (
+                            <Button
+                                variant="outline"
+                                size="lg"
+                                className="flex-1"
+                                asChild
+                            >
+                                <Link href="/cart">
+                                    <ShoppingCart className="h-5 w-5 mr-2" /> View Cart
+                                </Link>
+                            </Button>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
