@@ -283,7 +283,7 @@ const SignupPage = () => {
                                         <Input
                                             id="name"
                                             name="name"
-                                            placeholder="John Doe"
+                                            placeholder="Nikhil Kumar"
                                             value={formData.name}
                                             onChange={handleChange}
                                             disabled={isLoading}
@@ -309,7 +309,7 @@ const SignupPage = () => {
                                             id="email"
                                             name="email"
                                             type="email"
-                                            placeholder="john@example.com"
+                                            placeholder="email@example.com"
                                             value={formData.email}
                                             onChange={handleChange}
                                             disabled={isLoading}

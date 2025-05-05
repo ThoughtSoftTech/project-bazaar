@@ -249,7 +249,7 @@ const LoginPage = () => {
                                             id="email"
                                             name="email"
                                             type="email"
-                                            placeholder="john@example.com"
+                                            placeholder="email@example.com"
                                             value={formData.email}
                                             onChange={handleChange}
                                             disabled={isLoading}
